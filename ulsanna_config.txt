@@ -1,0 +1,63 @@
+!FEATURES
+consonant: cons
+sonorant: son
+syllabic: syll
+high: hi
+low: low
+back: back
+front: fro
+tense: tns
+round: rnd
+voice: voi
+continuant: cont
+strident: str
+lateral: lat
+delrelease: dr
+nasal: nas
+labial: LAB
+coronal: COR
+dorsal: DOR
+anterior: ant
+
+!PHONEMES
+a: -cons +son +syll -hi +low -tns -rnd -back -fro +cont +voi -nas
+e: -cons +son +syll -hi -low +tns -rnd -back +fro +cont +voi -nas
+i: -cons +son +syll +hi -low +tns -rnd -back +fro +cont +voi -nas
+u: -cons +son +syll +hi -low +tns +rnd +back -fro +cont +voi -nas
+p: +cons -son -syll +LAB -COR -DOR -cont -voi -nas
+t: +cons -son -syll -LAB +COR —DOR -cont -voi -nas +ant
+k: +cons -son -syll -LAB -COR +DOR -cont -voi -nas +hi + back
+q: +cons -son -syll -LAB -COR +DOR -cont -voi -nas -hi + back
+b: +cons -son -syll +LAB -COR -DOR -cont +voi -nas
+d: +cons -son -syll -LAB +COR —DOR -cont +voi -nas +ant
+g: +cons -son -syll -LAB -COR +DOR -cont +voi -nas +hi + back
+χ: +cons -son -syll -LAB -COR +DOR +cont -voi -nas -hi + back
+s: +cons -son -syll -LAB +COR —DOR +cont -voi -nas +ant -dr +str
+ʃ: +cons -son -syll -LAB +COR +DOR +cont -voi -nas -ant +str
+t͡s ^: +cons -son -syll -LAB +COR —DOR +cont -voi -nas +ant +dr +str
+r: +cons +son -syll -LAB +COR —DOR +cont +voi -nas +cont -lat
+l: +cons +son -syll -LAB +COR —DOR +cont +voi -nas +cont +lat
+m: +cons +son -syll +LAB -COR —DOR -cont +voi +nas +ant
+n: +cons +son -syll -LAB +COR —DOR -cont +voi +nas +ant
+
+æ: -cons +son +syll -hi +low +tns -rnd -back +fro +cont +voi -nas
+ɛ: -cons +son +syll -hi -low -tns -rnd -back +fro +cont +voi -nas
+ɪ: -cons +son +syll +hi -low -tns -rnd -back +fro +cont +voi -nas
+ʊ: -cons +son +syll +hi -low -tns +rnd +back -fro +cont +voi -nas
+ə: -cons +son +syll -hi -low -tns -rnd -back -fro +cont +voi -nas
+ɒ: -cons +son +syll -hi +low -tns -rnd +back -fro +cont +voi -nas
+o: -cons +son +syll -hi -low -tns +rnd +back -fro +cont +voi -nas
+
+!ABBREVIATIONS
+V: +syll
+C: -syll
+N: +nas
+
+!SYLLABIFICATION
+V
+CV
+CVC
+CVCC#
+
+!RULES
+N > [-nas -son] / _C
