@@ -1,12 +1,28 @@
 # -*- coding: utf-8 -*-
 import codecs
 from copy import deepcopy
+import re
 
 TRUE = 1
 FALSE = 0
 UNDEF = 2
 
 PADDING = 2
+
+def get_features(feature_list, these_feature):
+    features = {}
+    def feat_filter(feature, this):
+        try:
+            mapper = lambda x, feat: filter(lambda y: feat in y, x.split(" "))[0]
+            val = mapper(this, feature)
+            if '+' in val:
+                return TRUE
+            return FALSE
+        except:
+            return UNDEF
+    for feat in feature_list:
+        features[feat] = feat_filter(feat, these_feature)
+    return features
 
 class Executor():
 
@@ -78,6 +94,16 @@ class Executor():
         
         return
     
+    def match_rule_seg(self, rule, seg):
+        for feat in rule.seg_match.keys():
+            if seg.features[feat] != rule.seg_match[feat] and rule.seg_match[feat] != UNDEF:
+#                print feat, seg.features[feat], self.seg_match[feat]
+                return False
+        return True
+
+    def apply_rule(self, rule, word):
+        for phone in word:
+            print self.match_rule_seg(rule,phone)
 
 class GlobalGrammar():
 
@@ -136,8 +162,7 @@ class GlobalGrammar():
         rules = set([line.strip() for line in 
                 filter(lambda x:
                            x and "RULE" not in x, rule_sec.split("\n"))])
-        for rule in rules:
-            Rule(rule, self.features, self.abbrevs)
+        return [Rule(rule,self.features,self.abbrevs) for rule in rules]
 
 
 class Rule(object):
@@ -147,12 +172,19 @@ class Rule(object):
         self.features = features
         self.abbrevs = abbrevs
         print rule_str
-        rule_list = rule_str.split('[/>_]',rule_str)
+        rule_list = re.split('[/>_]',rule_str)
         print rule_list
-        self.seg_match = None
-        self.seg_change = None
-        self.pre_env = None
-        self.post_env = None
+        self.seg_match = self.get_seg_match(rule_list[0].strip())
+        self.seg_change = rule_list[1]
+        self.pre_env = rule_list[2]
+        self.post_env = rule_list[3]
+
+    def get_seg_match(self, match_str):
+        self.seg_match = match_str.strip()
+        if self.seg_match in self.abbrevs.keys():
+            self.seg_match = self.abbrevs[self.seg_match]
+        return get_features(self.features, re.sub("[\[|\]]","",self.seg_match))
+        
 
 class Phone(object):
 
@@ -163,35 +195,20 @@ class Phone(object):
             self.mapped = None
             self.name = phone[0]
             self.abbrev_list = rev_abbrevs
-            self.abbrevs = set()
             if ' ' in phone[0]:
                 self.mapped = phone[0].split(" ")[1]
                 self.name = phone[0].split(" ")[0]
-            self.features = self.get_features(features, phone[1])
+            self.abbrevs = set([self.abbrev_list[feat] for feat in self.abbrev_list if feat in phone[1]])
+            self.features = get_features(features, phone[1])
         else:
             self.syll = -1
             self.mora = False
             self.mapped = '#'
             self.name = '#'
             self.abbrev_list = {}
-            self.features = self.get_features(features, None)
+            self.features = get_features(features, None)
             self.abbrevs = ['#']
 
-    def get_features(self, feature_list, these_feature):
-        self.features = {}
-        self.abbrevs = set([self.abbrev_list[feat] for feat in self.abbrev_list if feat in these_feature])
-        def feat_filter(feature, this):
-            try:
-                mapper = lambda x, feat: filter(lambda y: feat in y, x.split(" "))[0]
-                val = mapper(this, feature)
-                if '+' in val:
-                    return TRUE
-                return FALSE
-            except:
-                return UNDEF
-        for feature in feature_list:
-            self.features[feature] = feat_filter(feature, these_feature)
-        return self.features
 
     def __str__(self):
         mapped = self.mapped
@@ -208,3 +225,7 @@ grammar.syllabify(phones)
 
 for phone in phones:
     print phone.mora, phone.abbrevs
+
+for rule in grammar.grammar.rules:
+    print rule.rule_str
+    print grammar.apply_rule(rule,phones)
