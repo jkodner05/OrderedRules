@@ -101,9 +101,15 @@ class Executor():
                 return False
         return True
 
+    def change_features(self,rule, seg): 
+        for feat in rule.seg_change.keys():
+            if rule.seg_change[feat] != UNDEF:
+                seg.features[feat] = rule.seg_change[feat]
+
     def apply_rule(self, rule, word):
         for phone in word:
-            print self.match_rule_seg(rule,phone)
+            if self.match_rule_seg(rule,phone):
+                self.change_features(rule,phone)
 
 class GlobalGrammar():
 
@@ -174,17 +180,22 @@ class Rule(object):
         print rule_str
         rule_list = re.split('[/>_]',rule_str)
         print rule_list
-        self.seg_match = self.get_seg_match(rule_list[0].strip())
-        self.seg_change = rule_list[1]
-        self.pre_env = rule_list[2]
-        self.post_env = rule_list[3]
+        self.seg_match = self.get_seg_feats(rule_list[0].strip())
+        self.seg_change = self.get_seg_feats(rule_list[1].strip())
+        self.pre_env = None
+        self.post_env = None
+        if len(rule_list) > 2:
+            self.pre_env = rule_list[2]
+            self.post_env = rule_list[3]
 
-    def get_seg_match(self, match_str):
-        self.seg_match = match_str.strip()
-        if self.seg_match in self.abbrevs.keys():
-            self.seg_match = self.abbrevs[self.seg_match]
-        return get_features(self.features, re.sub("[\[|\]]","",self.seg_match))
+    def get_seg_feats(self, match_str):
+        seg = match_str.strip()
+        if seg in self.abbrevs.keys():
+            seg = self.abbrevs[seg]
+        return get_features(self.features, re.sub("[\[|\]]","",seg))
         
+    def has_env(self):
+        return not (self.pre_env and self.post_env)
 
 class Phone(object):
 
@@ -223,9 +234,9 @@ grammar = Executor(GlobalGrammar(u'ulsanna_config.txt'))
 phones = grammar.getUR(u'arnirn')   
 grammar.syllabify(phones)
 
-for phone in phones:
-    print phone.mora, phone.abbrevs
-
 for rule in grammar.grammar.rules:
     print rule.rule_str
     print grammar.apply_rule(rule,phones)
+
+for phone in phones:
+    print phone.name, phone.features
