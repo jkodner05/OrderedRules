@@ -51,7 +51,7 @@ o: -cons +son +syll -hi -low -tns +rnd +back -fro +cont +voi -nas
 !ABBREVIATIONS
 V: +syll
 C: -syll
-N: +nas
+N: +nas -syll
 
 !SYLLABIFICATION
 V
@@ -60,4 +60,4 @@ CVC
 CVCC#
 
 !RULES
-N > [-nas -son] / _C
+N > [-nas -son] / C_V

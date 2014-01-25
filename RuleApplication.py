@@ -9,7 +9,9 @@ UNDEF = 2
 
 PADDING = 2
 
-def get_features(feature_list, these_feature):
+def get_features(feature_list, these_feature, abbrevs):
+    if these_feature in abbrevs.keys():
+        these_feature = abbrevs[these_feature]
     features = {}
     def feat_filter(feature, this):
         try:
@@ -24,6 +26,13 @@ def get_features(feature_list, these_feature):
         features[feat] = feat_filter(feat, these_feature)
     return features
 
+def match_features(phone_feats, other_feats):
+    for feat in other_feats.keys():
+        if phone_feats[feat] != other_feats[feat] and other_feats[feat] != UNDEF:
+            return False
+    return True
+           
+
 class Executor():
 
     def __init__(self, grammar):
@@ -34,17 +43,24 @@ class Executor():
 
     def getUR(self, flat_word):
         center = [self.getPhoneUR(char) for char in flat_word]
-        ends = [Phone(self.grammar.features,boundary=True)]*PADDING*2
+        ends = [Phone(self.grammar.abbrevs,self.grammar.features,boundary=True)]*PADDING*2
         ends[PADDING:PADDING] = center
         return ends
 
-    def match(self, segments, types, sylls, nuc_index, is_onset):
-        if is_onset:
-            potential = types[nuc_index-len(segments):]
-            potential_sylls = sylls[nuc_index-len(segments):]
+    def syll_match(self, segments, types, sylls, piv_index, is_prefix, word):
+        potential = [phone.features for phone in word[piv_index-len(segments):]]
+        print segments
+        for i,feats in enumerate(segments):
+            print i, len(feats), len(segments)
+            print grammar.grammar.abbrevs
+            print [grammar.grammar.abbrevs[seg] for seg in segments[i]]
+            print match_features(feats,[grammar.grammar.abbrevs[seg] for seg in segments[i]])
+        if is_prefix:
+            potential = types[piv_index-len(segments):]
+            potential_sylls = sylls[piv_index-len(segments):]
         else:
-            potential = types[nuc_index+1:]
-            potential_sylls = sylls[nuc_index+1:]
+            potential = types[piv_index+1:]
+            potential_sylls = sylls[piv_index+1:]
         for i, seg in enumerate(segments):
             if seg not in potential[i] or potential_sylls[i] >= 0:
                 return False
@@ -59,17 +75,17 @@ class Executor():
         moras = [False]*len(types)
         count = 0
         # find nuclei
-        for i, type_set in enumerate(types):
-            if(self.grammar.rev_abbrevs["+syll"] in type_set):
+        for i, phone in enumerate(word):
+            if match_features(phone.features, {"syll":TRUE}):
                 sylls[i] = count
                 moras[i] = True
-                count += 1
+                count += 1                
         nuclei = [i for i, mora in enumerate(moras) if mora == True]
         # find onsets
         for nucleus in nuclei:
             matched = ''
             for onset in self.grammar.syllables["onsets"]:
-                if self.match(onset,types,sylls,nucleus,is_onset=True):
+                if self.syll_match(onset,types,sylls,nucleus,True,word):
                     if self.clean_len(onset) > self.clean_len(matched):
                         matched = onset
             for i in range(nucleus-self.clean_len(matched),nucleus):
@@ -78,7 +94,7 @@ class Executor():
         for nucleus in nuclei:
             matched = ''
             for coda in self.grammar.syllables["codas"]:
-                if self.match(coda,types,sylls,nucleus,is_onset=False):
+                if self.syll_match(coda,types,sylls,nucleus,False,word):
                     if self.clean_len(coda) > self.clean_len(matched):
                         matched = coda
             for i in range(nucleus+1,nucleus+self.clean_len(matched)+1):
@@ -88,16 +104,25 @@ class Executor():
         for i, phone in enumerate(word):
             phone.syll = sylls[i]
             phone.mora = moras[i]
-            print phone.syll, phone.mora
         print sylls
         print moras
         
         return
+
+    def match_env(self, rule, word, index):
+        types = [phone.abbrevs for phone in word]
+        sylls = [-1]*len(types)
+        moras = [False]*len(types)
+
+#        if not self.syll_match(rule.prev_index,types,sylls,word,is_onset=True):
+#            return False
+#        if not self.syll_match(rule.prev_index,types,sylls,word,is_onset=True):
+#            return False
+        return True
     
     def match_rule_seg(self, rule, seg):
         for feat in rule.seg_match.keys():
-            if seg.features[feat] != rule.seg_match[feat] and rule.seg_match[feat] != UNDEF:
-#                print feat, seg.features[feat], self.seg_match[feat]
+            if not match_features(seg.features,rule.seg_match):
                 return False
         return True
 
@@ -107,9 +132,10 @@ class Executor():
                 seg.features[feat] = rule.seg_change[feat]
 
     def apply_rule(self, rule, word):
-        for phone in word:
+        for i, phone in enumerate(word):
             if self.match_rule_seg(rule,phone):
-                self.change_features(rule,phone)
+                if self.match_env(rule,word,i):
+                    self.change_features(rule,phone)
 
 class GlobalGrammar():
 
@@ -128,17 +154,20 @@ class GlobalGrammar():
         full = f.read().split("!")
         sec_filter = lambda x, sec: filter(lambda y: sec in y, x)[0]
         self.features = self.read_features(sec_filter(full, "FEATURE"))
-        self.abbrevs = self.map_abbrevs(sec_filter(full, "ABBREV"))
+        self.abbrevs = self.map_abbrevs(sec_filter(full, "ABBREV"),sec_filter(full, "PHONEME"))
         self.rev_abbrevs = self.reverse_abbrevs()
         self.phones = self.map_phones(sec_filter(full, "PHONEME"))
         self.syllables = self.read_syllables(sec_filter(full, "SYLL"))
         self.rules = self.parse_rules(sec_filter(full, "RULE"))
         return full
 
-    def map_abbrevs(self, abbrev_sec):
-        return {line.split(":")[0].strip() : line.split(":")[1].strip() for line in 
+    def map_abbrevs(self, abbrev_sec, feature_sec):
+        combined = abbrev_sec + feature_sec
+#        for line in combined.splitlines():
+#            print line.split(":")[0].split()
+        return {line.split(":")[0].split()[-1].strip() : line.split(":")[1].strip() for line in 
                 filter(lambda x:
-                           x and "ABBREV" not in x, abbrev_sec.split("\n"))}
+                           x and "ABBREV" not in x and "PHONE" not in x, combined.split("\n"))}
 
     def reverse_abbrevs(self):
         revs = {}
@@ -152,7 +181,7 @@ class GlobalGrammar():
                            x and "FEATURE" not in x, feature_sec.split("\n"))]
 
     def map_phones(self, phone_sec):
-        phones = [Phone(self.features, line.split(":"), rev_abbrevs=self.rev_abbrevs) for line in phone_sec.decode("utf-8").split("\n") if ":" in line]
+        phones = [Phone(self.abbrevs, self.features, line.split(":"), rev_abbrevs=self.rev_abbrevs) for line in phone_sec.decode("utf-8").split("\n") if ":" in line]
         return {phone.name : phone for phone in phones}
 
     def read_syllables(self, syll_sec):
@@ -190,34 +219,35 @@ class Rule(object):
 
     def get_seg_feats(self, match_str):
         seg = match_str.strip()
-        if seg in self.abbrevs.keys():
-            seg = self.abbrevs[seg]
-        return get_features(self.features, re.sub("[\[|\]]","",seg))
+        return get_features(self.features, re.sub("[\[|\]]","",seg), self.abbrevs)
         
     def has_env(self):
         return not (self.pre_env and self.post_env)
 
 class Phone(object):
 
-    def __init__(self, features=None, phone=None, boundary=False, rev_abbrevs=None):
+    def __init__(self, abbrevs, features=None, phone=None, boundary=False, rev_abbrevs=None):
         if not boundary:
             self.syll = -1
             self.mora = False
-            self.mapped = None
+            self.mapped = phone[0]
             self.name = phone[0]
-            self.abbrev_list = rev_abbrevs
+            self.abbrev_list = abbrevs
             if ' ' in phone[0]:
                 self.mapped = phone[0].split(" ")[1]
                 self.name = phone[0].split(" ")[0]
-            self.abbrevs = set([self.abbrev_list[feat] for feat in self.abbrev_list if feat in phone[1]])
-            self.features = get_features(features, phone[1])
+            self.abbrevs = set([rev_abbrevs[feat] for feat in rev_abbrevs])
+#            self.abbrevs = set([rev_abbrevs[feat] for feat in rev_abbrevs if feat in phone[1]])
+#            self.abbrevs = set([self.abbrev_list[feat] for feat in self.abbrev_list if feat in phone[1]])
+            self.features = get_features(features, phone[1], self.abbrev_list)
         else:
             self.syll = -1
             self.mora = False
             self.mapped = '#'
             self.name = '#'
-            self.abbrev_list = {}
-            self.features = get_features(features, None)
+            self.abbrev_list = abbrevs
+            self.abbrevs = ['#']
+            self.features = get_features(features, None, self.abbrev_list)
             self.abbrevs = ['#']
 
 
@@ -238,5 +268,5 @@ for rule in grammar.grammar.rules:
     print rule.rule_str
     print grammar.apply_rule(rule,phones)
 
-for phone in phones:
-    print phone.name, phone.features
+#for phone in phones:
+#    print phone.name, phone.features
