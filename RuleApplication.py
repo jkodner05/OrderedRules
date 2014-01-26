@@ -36,12 +36,13 @@ class Executor():
     def __init__(self, grammar):
         self.grammar = grammar
 
-    def getPhoneUR(self, char):
-        return deepcopy(self.grammar.phones[char])
+    def getPhoneUR(self, char):        
+        return Phone(self.grammar.phones[self.grammar.phone_char_mappings[char]], char, False)
 
     def getUR(self, flat_word):
         center = [self.getPhoneUR(char) for char in flat_word]
-        ends = [Phone(self.grammar.abbrevs,self.grammar.features,boundary=True)]*PADDING*2
+        ends = [Phone(self.grammar.features,"#",boundary=True)]*PADDING*2
+#        ends = [Phone(self.grammar.abbrevs,self.grammar.features,boundary=True)]*PADDING*2
         ends[PADDING:PADDING] = center
         return ends
 
@@ -68,11 +69,16 @@ class Executor():
         return len(segment) - segment.count("#")
 
     def syllabify(self, word):
-        types = [phone.abbrevs for phone in word]
-        sylls = [-1]*len(types)
-        moras = [False]*len(types)
+        sylls = [-1]*len(word)
+        moras = [False]*len(word)
+        for phone in word:
+            print phone.name, phone.features
+#        types = [phone.abbrevs for phone in word]
+#        sylls = [-1]*len(types)
+#        moras = [False]*len(types)
         count = 0
         # find nuclei
+        print word
         for i, phone in enumerate(word):
             if match_features(phone.features, {"syll":TRUE}):
                 sylls[i] = count
@@ -155,6 +161,7 @@ class GlobalGrammar():
 #        self.abbrevs = self.map_abbrevs(sec_filter(full, "ABBREV"),sec_filter(full, "PHONEME"))
 #        self.rev_abbrevs = self.reverse_abbrevs()
         self.phones = self.map_phones(sec_filter(full, "PHONEME"),sec_filter(full, "ABBREV"))
+        self.phone_char_mappings = self.map_phone_chars(sec_filter(full, "PHONEME"))
         self.syllables = self.read_syllables(sec_filter(full, "SYLL"))
         self.rules = self.parse_rules(sec_filter(full, "RULE"))
         return full
@@ -184,6 +191,11 @@ class GlobalGrammar():
                 filter(lambda x:
                            x and "ABBREV" not in x and "PHONE" not in x, combined.split("\n"))}        
 
+    def map_phone_chars(self, phone_sec):
+        return {line.split(":")[0].split()[0].strip() : line.split(":")[0].split()[-1].strip() for line in 
+                filter(lambda x:
+                            x and "PHONE" not in x, phone_sec.split("\n"))}        
+
     def read_syllables(self, syll_sec):
         syllables = set([line.strip() for line in 
                 filter(lambda x:
@@ -198,7 +210,7 @@ class GlobalGrammar():
         rules = set([line.strip() for line in 
                 filter(lambda x:
                            x and "RULE" not in x, rule_sec.split("\n"))])
-        return [Rule(rule,self.features,self.abbrevs) for rule in rules]
+        return [Rule(rule,self.features,self.phones) for rule in rules]
 
 
 class Rule(object):
@@ -206,50 +218,46 @@ class Rule(object):
     def __init__(self, rule_str, features, abbrevs):
         self.rule_str = rule_str
         self.features = features
-        self.abbrevs = abbrevs
         print rule_str
         rule_list = re.split('[/>_]',rule_str)
         print rule_list
         self.seg_match = self.get_seg_feats(rule_list[0].strip())
         self.seg_change = self.get_seg_feats(rule_list[1].strip())
-        self.pre_env = None
-        self.post_env = None
-        if len(rule_list) > 2:
-            self.pre_env = rule_list[2]
-            self.post_env = rule_list[3]
+        self.pre_env = rule_list[2] if len(rule_list) > 2 else None
+        self.post_env = rule_list[3] if len(rule_list) > 2 else None
 
     def get_seg_feats(self, match_str):
-        seg = match_str.strip()
-        return get_features(self.features, re.sub("[\[|\]]","",seg), self.abbrevs)
+        return get_features(self.features, re.sub("[\[|\]]","",match_str.strip()))
         
     def has_env(self):
         return not (self.pre_env and self.post_env)
 
 class Phone(object):
 
-    def __init__(self, abbrevs, features=None, phone=None, boundary=False, rev_abbrevs=None):
+    def __init__(self, features=None, phone=None, boundary=False):
         if not boundary:
             self.syll = -1
             self.mora = False
-            self.mapped = phone[0]
-            self.name = phone[0]
-            self.abbrev_list = abbrevs
-            if ' ' in phone[0]:
-                self.mapped = phone[0].split(" ")[1]
-                self.name = phone[0].split(" ")[0]
-            self.abbrevs = set([rev_abbrevs[feat] for feat in rev_abbrevs])
+            self.mapped = phone
+            self.name = phone
+#            self.abbrev_list = abbrevs
+#            if ' ' in phone[0]:
+#                self.mapped = phone[0].split(" ")[1]
+#                self.name = phone[0].split(" ")[0]
+#            self.abbrevs = set([rev_abbrevs[feat] for feat in rev_abbrevs])
 #            self.abbrevs = set([rev_abbrevs[feat] for feat in rev_abbrevs if feat in phone[1]])
 #            self.abbrevs = set([self.abbrev_list[feat] for feat in self.abbrev_list if feat in phone[1]])
-            self.features = get_features(features, phone[1], self.abbrev_list)
+#            self.features = get_features(features, phone[1], self.abbrev_list)
+            self.features = features
         else:
             self.syll = -1
             self.mora = False
             self.mapped = '#'
             self.name = '#'
-            self.abbrev_list = abbrevs
-            self.abbrevs = ['#']
-            self.features = get_features(features, None, self.abbrev_list)
-            self.abbrevs = ['#']
+#            self.abbrev_list = abbrevs
+#            self.abbrevs = ['#']
+            self.features = get_features(features, None)
+#            self.abbrevs = ['#']
 
 
     def __str__(self):
