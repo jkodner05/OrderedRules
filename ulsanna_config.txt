@@ -18,40 +18,42 @@ labial: LAB
 coronal: COR
 dorsal: DOR
 anterior: ant
+wordbreak: break
 
 !PHONEMES
-a: -cons +son +syll -hi +low -tns -rnd -back -fro +cont +voi -nas
-e: -cons +son +syll -hi -low +tns -rnd -back +fro +cont +voi -nas
-i: -cons +son +syll +hi -low +tns -rnd -back +fro +cont +voi -nas
-u: -cons +son +syll +hi -low +tns +rnd +back -fro +cont +voi -nas
-p: +cons -son -syll +LAB -COR -DOR -cont -voi -nas
-t: +cons -son -syll -LAB +COR —DOR -cont -voi -nas +ant
-k: +cons -son -syll -LAB -COR +DOR -cont -voi -nas +hi + back
-q: +cons -son -syll -LAB -COR +DOR -cont -voi -nas -hi + back
-b: +cons -son -syll +LAB -COR -DOR -cont +voi -nas
-d: +cons -son -syll -LAB +COR —DOR -cont +voi -nas +ant
-g: +cons -son -syll -LAB -COR +DOR -cont +voi -nas +hi + back
-χ: +cons -son -syll -LAB -COR +DOR +cont -voi -nas -hi + back
-s: +cons -son -syll -LAB +COR —DOR +cont -voi -nas +ant -dr +str
-ʃ: +cons -son -syll -LAB +COR +DOR +cont -voi -nas -ant +str
-t͡s ^: +cons -son -syll -LAB +COR —DOR +cont -voi -nas +ant +dr +str
-r: +cons +son -syll -LAB +COR —DOR +cont +voi -nas +cont -lat
-l: +cons +son -syll -LAB +COR —DOR +cont +voi -nas +cont +lat
-m: +cons +son -syll +LAB -COR —DOR -cont +voi +nas +ant
-n: +cons +son -syll -LAB +COR —DOR -cont +voi +nas +ant
+a: -cons +son +syll -hi +low -tns -rnd -back -fro +cont +voi -nas -break
+e: -cons +son +syll -hi -low +tns -rnd -back +fro +cont +voi -nas -break
+i: -cons +son +syll +hi -low +tns -rnd -back +fro +cont +voi -nas -break
+u: -cons +son +syll +hi -low +tns +rnd +back -fro +cont +voi -nas -break
+p: +cons -son -syll +LAB -COR -DOR -cont -voi -nas -break
+t: +cons -son -syll -LAB +COR —DOR -cont -voi -nas +ant -break
+k: +cons -son -syll -LAB -COR +DOR -cont -voi -nas +hi + back -break
+q: +cons -son -syll -LAB -COR +DOR -cont -voi -nas -hi + back -break
+b: +cons -son -syll +LAB -COR -DOR -cont +voi -nas -break
+d: +cons -son -syll -LAB +COR —DOR -cont +voi -nas +ant -break
+g: +cons -son -syll -LAB -COR +DOR -cont +voi -nas +hi + back -break
+χ: +cons -son -syll -LAB -COR +DOR +cont -voi -nas -hi + back -break
+s: +cons -son -syll -LAB +COR —DOR +cont -voi -nas +ant -dr +str -break
+ʃ: +cons -son -syll -LAB +COR +DOR +cont -voi -nas -ant +str -break
+t͡s ^: +cons -son -syll -LAB +COR —DOR +cont -voi -nas +ant +dr +str -break
+r: +cons +son -syll -LAB +COR —DOR +cont +voi -nas +cont -lat -break
+l: +cons +son -syll -LAB +COR —DOR +cont +voi -nas +cont +lat -break
+m: +cons +son -syll +LAB -COR —DOR -cont +voi +nas +ant -break
+n: +cons +son -syll -LAB +COR —DOR -cont +voi +nas +ant -break
 
-æ: -cons +son +syll -hi +low +tns -rnd -back +fro +cont +voi -nas
-ɛ: -cons +son +syll -hi -low -tns -rnd -back +fro +cont +voi -nas
-ɪ: -cons +son +syll +hi -low -tns -rnd -back +fro +cont +voi -nas
-ʊ: -cons +son +syll +hi -low -tns +rnd +back -fro +cont +voi -nas
-ə: -cons +son +syll -hi -low -tns -rnd -back -fro +cont +voi -nas
-ɒ: -cons +son +syll -hi +low -tns -rnd +back -fro +cont +voi -nas
-o: -cons +son +syll -hi -low -tns +rnd +back -fro +cont +voi -nas
+æ: -cons +son +syll -hi +low +tns -rnd -back +fro +cont +voi -nas -break
+ɛ: -cons +son +syll -hi -low -tns -rnd -back +fro +cont +voi -nas -break
+ɪ: -cons +son +syll +hi -low -tns -rnd -back +fro +cont +voi -nas -break
+ʊ: -cons +son +syll +hi -low -tns +rnd +back -fro +cont +voi -nas -break
+ə: -cons +son +syll -hi -low -tns -rnd -back -fro +cont +voi -nas -break
+ɒ: -cons +son +syll -hi +low -tns -rnd +back -fro +cont +voi -nas -break
+o: -cons +son +syll -hi -low -tns +rnd +back -fro +cont +voi -nas -break
 
 !ABBREVIATIONS
-V: +syll
-C: -syll
-N: +nas -syll
+V: +syll -break
+C: -syll -break
+N: +nas -syll -break
+#: +break
 
 !SYLLABIFICATION
 V

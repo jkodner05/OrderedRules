@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import codecs
-from copy import deepcopy
+from copy import copy
 import re
 
 TRUE = 1
@@ -37,16 +37,15 @@ class Executor():
         self.grammar = grammar
 
     def getPhoneUR(self, char):        
-        return Phone(self.grammar.phones[self.grammar.phone_char_mappings[char]], char, False)
+        return Phone(copy(self.grammar.phones[self.grammar.phone_char_mappings[char]]), char, False)
 
     def getUR(self, flat_word):
         center = [self.getPhoneUR(char) for char in flat_word]
         ends = [Phone(self.grammar.features,"#",boundary=True)]*PADDING*2
-#        ends = [Phone(self.grammar.abbrevs,self.grammar.features,boundary=True)]*PADDING*2
         ends[PADDING:PADDING] = center
         return ends
 
-    def segs_match(self, segments, sylls, piv_index, word, is_prefix):
+    def segs_match(self, segments, sylls, piv_index, word, syll_aware, is_prefix):
         if is_prefix:
             potential = [phone.features for phone in word[piv_index-len(segments):]]
             potential_sylls = sylls[piv_index-len(segments):]
@@ -55,7 +54,7 @@ class Executor():
             potential_sylls = sylls[piv_index+1:]
         for i,feats in enumerate(segments):
             for seg in segments[i]:
-                if not match_features(potential[i], grammar.grammar.phones[seg]):# or potential_sylls[i] >= 0:
+                if not match_features(potential[i], grammar.grammar.phones[seg]) or (syll_aware and potential_sylls[i] >= 0):
                     return False
         return True
 
@@ -77,7 +76,7 @@ class Executor():
         for nucleus in nuclei:
             matched = ''
             for onset in self.grammar.syllables["onsets"]:
-                if self.segs_match(onset,sylls,nucleus,word,True):
+                if self.segs_match(onset,sylls,nucleus,word,True,True):
                     if self.clean_len(onset) > self.clean_len(matched):
                         matched = onset
             for i in range(nucleus-self.clean_len(matched),nucleus):
@@ -86,7 +85,7 @@ class Executor():
         for nucleus in nuclei:
             matched = ''
             for coda in self.grammar.syllables["codas"]:
-                if self.segs_match(coda,sylls,nucleus,word,False):
+                if self.segs_match(coda,sylls,nucleus,word,True,False):
                     if self.clean_len(coda) > self.clean_len(matched):
                         matched = coda
             for i in range(nucleus+1,nucleus+self.clean_len(matched)+1):
@@ -102,10 +101,10 @@ class Executor():
         return
 
     def match_env(self, rule, word, index):
-
-        if not self.seg_match(rule.prev_index,types,sylls,word,is_onset=True):
+        sylls = [phone.syll for phone in word]
+        if not self.segs_match(rule.pre_env,sylls,index,word,False,True):
             return False
-        if not self.syll_match(rule.prev_index,types,sylls,word,is_onset=True):
+        if not self.segs_match(rule.post_env,sylls,index,word,False,False):
             return False
         return True
     
@@ -116,6 +115,7 @@ class Executor():
         return True
 
     def change_features(self,rule, seg): 
+        print "applying"
         for feat in rule.seg_change.keys():
             if rule.seg_change[feat] != UNDEF:
                 seg.features[feat] = rule.seg_change[feat]
@@ -124,8 +124,13 @@ class Executor():
         for i, phone in enumerate(word):
             if self.match_rule_seg(rule,phone):
                 if self.match_env(rule,word,i):
+                    print "matched", i
                     self.change_features(rule,phone)
 
+    def get_char_representation(self, word):
+        for phone in word:
+            print phone.mapped, phone.features
+                    
 class GlobalGrammar():
 
     def __init__(self, filename):
@@ -196,8 +201,8 @@ class Rule(object):
         rule_list = re.split('[/>_]',rule_str)
         self.seg_match = self.get_seg_feats(rule_list[0].strip())
         self.seg_change = self.get_seg_feats(rule_list[1].strip())
-        self.pre_env = rule_list[2] if len(rule_list) > 2 else None
-        self.post_env = rule_list[3] if len(rule_list) > 2 else None
+        self.pre_env = rule_list[2].strip() if len(rule_list) > 2 else None
+        self.post_env = rule_list[3].strip() if len(rule_list) > 2 else None
 
     def get_seg_feats(self, match_str):
         return get_features(self.features, re.sub("[\[|\]]","",match_str.strip()))
@@ -221,7 +226,6 @@ class Phone(object):
             self.name = '#'
             self.features = get_features(features, None)
 
-
     def __str__(self):
         mapped = self.mapped
         if not mapped:
@@ -237,7 +241,8 @@ grammar.syllabify(phones)
 
 for rule in grammar.grammar.rules:
     print rule.rule_str
+    print grammar.get_char_representation(phones)
     print grammar.apply_rule(rule,phones)
-
+    print grammar.get_char_representation(phones)
 #for phone in phones:
 #    print phone.name, phone.features
