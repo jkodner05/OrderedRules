@@ -77,7 +77,6 @@ class Executor():
 #        sylls = [-1]*len(types)
 #        moras = [False]*len(types)
         count = 0
-        # find nuclei
         print word
         for i, phone in enumerate(word):
             if match_features(phone.features, {"syll":TRUE}):
@@ -85,6 +84,7 @@ class Executor():
                 moras[i] = True
                 count += 1                
         nuclei = [i for i, mora in enumerate(moras) if mora == True]
+        print nuclei
         # find onsets
         for nucleus in nuclei:
             matched = ''
