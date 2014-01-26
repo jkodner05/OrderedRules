@@ -46,23 +46,19 @@ class Executor():
         ends[PADDING:PADDING] = center
         return ends
 
-    def syll_match(self, segments, types, sylls, piv_index, is_prefix, word):
-        potential = [phone.features for phone in word[piv_index-len(segments):]]
-        print segments
-        for i,feats in enumerate(segments):
-            print i, len(feats), len(segments)
-            print grammar.grammar.abbrevs
-            print [grammar.grammar.abbrevs[seg] for seg in segments[i]]
-            print match_features(feats,[grammar.grammar.abbrevs[seg] for seg in segments[i]])
+    def segs_match(self, segments, sylls, piv_index, word, is_prefix):
         if is_prefix:
-            potential = types[piv_index-len(segments):]
+            potential = [phone.features for phone in word[piv_index-len(segments):]]
             potential_sylls = sylls[piv_index-len(segments):]
         else:
-            potential = types[piv_index+1:]
+            potential = [phone.features for phone in word[piv_index+1:]]
             potential_sylls = sylls[piv_index+1:]
-        for i, seg in enumerate(segments):
-            if seg not in potential[i] or potential_sylls[i] >= 0:
-                return False
+        print "syll info", segments
+        for i,feats in enumerate(segments):
+            for seg in segments[i]:
+                print segments[i]
+                if not match_features(potential[i], grammar.grammar.phones[seg]) or potential_sylls[i] >= 0:
+                    return False
         return True
 
     def clean_len(self, segment):
@@ -84,21 +80,23 @@ class Executor():
                 moras[i] = True
                 count += 1                
         nuclei = [i for i, mora in enumerate(moras) if mora == True]
-        print nuclei
         # find onsets
         for nucleus in nuclei:
             matched = ''
             for onset in self.grammar.syllables["onsets"]:
-                if self.syll_match(onset,types,sylls,nucleus,True,word):
+                if self.segs_match(onset,sylls,nucleus,word,True):
                     if self.clean_len(onset) > self.clean_len(matched):
                         matched = onset
             for i in range(nucleus-self.clean_len(matched),nucleus):
                 sylls[i] = sylls[nucleus]
+        print "onset", sylls
+        print "onset", moras
+
         # find codas
         for nucleus in nuclei:
             matched = ''
             for coda in self.grammar.syllables["codas"]:
-                if self.syll_match(coda,types,sylls,nucleus,False,word):
+                if self.segs_match(coda,sylls,nucleus,word,False):
                     if self.clean_len(coda) > self.clean_len(matched):
                         matched = coda
             for i in range(nucleus+1,nucleus+self.clean_len(matched)+1):
@@ -108,8 +106,8 @@ class Executor():
         for i, phone in enumerate(word):
             phone.syll = sylls[i]
             phone.mora = moras[i]
-        print sylls
-        print moras
+        print "coda", sylls
+        print "coda", moras
         
         return
 
@@ -186,7 +184,7 @@ class GlobalGrammar():
     def map_phones(self, phone_sec, abbrev_sec):
 #        phones = [Phone(self.abbrevs, self.features, line.split(":"), rev_abbrevs=self.rev_abbrevs) for line in phone_sec.decode("utf-8").split("\n") if ":" in line]
 #        return {phone.name : phone for phone in phones}
-        combined = phone_sec + abbrev_sec
+        combined = phone_sec + abbrev_sec + "#: "
         return {line.split(":")[0].split()[-1].strip() : get_features(self.features,line.split(":")[1].strip()) for line in 
                 filter(lambda x:
                            x and "ABBREV" not in x and "PHONE" not in x, combined.split("\n"))}        
