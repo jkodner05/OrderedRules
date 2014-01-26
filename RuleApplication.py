@@ -65,7 +65,6 @@ class Executor():
         sylls = [-1]*len(word)
         moras = [False]*len(word)
         count = 0
-        print word
         for i, phone in enumerate(word):
             if match_features(phone.features, {"syll":TRUE}):
                 sylls[i] = count
@@ -115,7 +114,6 @@ class Executor():
         return True
 
     def change_features(self,rule, seg): 
-        print "applying"
         for feat in rule.seg_change.keys():
             if rule.seg_change[feat] != UNDEF:
                 seg.features[feat] = rule.seg_change[feat]
@@ -124,12 +122,25 @@ class Executor():
         for i, phone in enumerate(word):
             if self.match_rule_seg(rule,phone):
                 if self.match_env(rule,word,i):
-                    print "matched", i
                     self.change_features(rule,phone)
+        return word
 
-    def get_char_representation(self, word):
-        for phone in word:
-            print phone.mapped, phone.features
+    def get_char_representation(self, seg):
+        char_rep = seg.features.__str__()
+        for phone in self.grammar.phones.keys():
+            match = True
+            for feat in self.grammar.phones[phone].keys():
+                if seg.features[feat] != self.grammar.phones[phone][feat]:
+                    match = False
+                    continue
+            if match:
+                char_rep = self.grammar.phone_char_mappings[phone]
+        if char_rep != "#":
+            return char_rep
+        return ''
+
+    def get_word_representation(self, word):
+        return "".join([self.get_char_representation(seg) for seg in word])
                     
 class GlobalGrammar():
 
@@ -149,7 +160,7 @@ class GlobalGrammar():
         sec_filter = lambda x, sec: filter(lambda y: sec in y, x)[0]
         self.features = self.read_features(sec_filter(full, "FEATURE"))
         self.phones = self.map_phones(sec_filter(full, "PHONEME"),sec_filter(full, "ABBREV"))
-        self.phone_char_mappings = self.map_phone_chars(sec_filter(full, "PHONEME"))
+        self.phone_char_mappings = self.map_phone_chars(sec_filter(full, "PHONEME"), sec_filter(full, "ABBREV"))
         self.syllables = self.read_syllables(sec_filter(full, "SYLL"))
         self.rules = self.parse_rules(sec_filter(full, "RULE"))
         return full
@@ -171,10 +182,11 @@ class GlobalGrammar():
                 filter(lambda x:
                            x and "ABBREV" not in x and "PHONE" not in x, combined.split("\n"))}        
 
-    def map_phone_chars(self, phone_sec):
-        return {line.split(":")[0].split()[0].strip() : line.split(":")[0].split()[-1].strip() for line in 
+    def map_phone_chars(self, phone_sec, abbrev_sec):
+        combined = phone_sec + abbrev_sec + "#: "
+        return {line.split(":")[0].split()[-1].strip() : line.split(":")[0].split()[0].strip() for line in 
                 filter(lambda x:
-                            x and "PHONE" not in x, phone_sec.split("\n"))}        
+                            x and "ABBREV" not in x and "PHONE" not in x, combined.split("\n"))}        
 
     def read_syllables(self, syll_sec):
         syllables = set([line.strip() for line in 
@@ -241,8 +253,8 @@ grammar.syllabify(phones)
 
 for rule in grammar.grammar.rules:
     print rule.rule_str
-    print grammar.get_char_representation(phones)
+    print grammar.get_word_representation(phones)
     print grammar.apply_rule(rule,phones)
-    print grammar.get_char_representation(phones)
+    print grammar.get_word_representation(phones)
 #for phone in phones:
 #    print phone.name, phone.features
