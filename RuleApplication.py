@@ -55,7 +55,7 @@ class Executor():
             potential_sylls = sylls[piv_index+1:]
         for i,feats in enumerate(segments):
             for seg in segments[i]:
-                if not match_features(potential[i], grammar.grammar.phones[seg]) or potential_sylls[i] >= 0:
+                if not match_features(potential[i], grammar.grammar.phones[seg]):# or potential_sylls[i] >= 0:
                     return False
         return True
 
@@ -82,9 +82,6 @@ class Executor():
                         matched = onset
             for i in range(nucleus-self.clean_len(matched),nucleus):
                 sylls[i] = sylls[nucleus]
-        print "onset", sylls
-        print "onset", moras
-
         # find codas
         for nucleus in nuclei:
             matched = ''
@@ -105,14 +102,11 @@ class Executor():
         return
 
     def match_env(self, rule, word, index):
-        types = [phone.abbrevs for phone in word]
-        sylls = [-1]*len(types)
-        moras = [False]*len(types)
 
-#        if not self.syll_match(rule.prev_index,types,sylls,word,is_onset=True):
-#            return False
-#        if not self.syll_match(rule.prev_index,types,sylls,word,is_onset=True):
-#            return False
+        if not self.seg_match(rule.prev_index,types,sylls,word,is_onset=True):
+            return False
+        if not self.syll_match(rule.prev_index,types,sylls,word,is_onset=True):
+            return False
         return True
     
     def match_rule_seg(self, rule, seg):
