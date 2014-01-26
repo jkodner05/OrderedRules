@@ -268,7 +268,7 @@ class Phone(object):
 
 
 grammar = Executor(GlobalGrammar(u'ulsanna_config.txt'))
-phones = grammar.getUR(u'arnirn')   
+phones = grammar.getUR(u'arpnirn')   
 grammar.syllabify(phones)
 
 for rule in grammar.grammar.rules:
