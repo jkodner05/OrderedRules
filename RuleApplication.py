@@ -9,9 +9,7 @@ UNDEF = 2
 
 PADDING = 2
 
-def get_features(feature_list, these_feature, abbrevs):
-    if these_feature in abbrevs.keys():
-        these_feature = abbrevs[these_feature]
+def get_features(feature_list, these_feature):
     features = {}
     def feat_filter(feature, this):
         try:
@@ -154,20 +152,18 @@ class GlobalGrammar():
         full = f.read().split("!")
         sec_filter = lambda x, sec: filter(lambda y: sec in y, x)[0]
         self.features = self.read_features(sec_filter(full, "FEATURE"))
-        self.abbrevs = self.map_abbrevs(sec_filter(full, "ABBREV"),sec_filter(full, "PHONEME"))
-        self.rev_abbrevs = self.reverse_abbrevs()
-        self.phones = self.map_phones(sec_filter(full, "PHONEME"))
+#        self.abbrevs = self.map_abbrevs(sec_filter(full, "ABBREV"),sec_filter(full, "PHONEME"))
+#        self.rev_abbrevs = self.reverse_abbrevs()
+        self.phones = self.map_phones(sec_filter(full, "PHONEME"),sec_filter(full, "ABBREV"))
         self.syllables = self.read_syllables(sec_filter(full, "SYLL"))
         self.rules = self.parse_rules(sec_filter(full, "RULE"))
         return full
 
-    def map_abbrevs(self, abbrev_sec, feature_sec):
-        combined = abbrev_sec + feature_sec
-#        for line in combined.splitlines():
-#            print line.split(":")[0].split()
-        return {line.split(":")[0].split()[-1].strip() : line.split(":")[1].strip() for line in 
-                filter(lambda x:
-                           x and "ABBREV" not in x and "PHONE" not in x, combined.split("\n"))}
+#    def map_abbrevs(self, abbrev_sec, feature_sec):
+#        combined = abbrev_sec + feature_sec
+#        return {line.split(":")[0].split()[-1].strip() : get_features(line.split(":")[1].strip() for line in 
+#                filter(lambda x:
+#                           x and "ABBREV" not in x and "PHONE" not in x, combined.split("\n"))}
 
     def reverse_abbrevs(self):
         revs = {}
@@ -180,17 +176,22 @@ class GlobalGrammar():
                 filter(lambda x:
                            x and "FEATURE" not in x, feature_sec.split("\n"))]
 
-    def map_phones(self, phone_sec):
-        phones = [Phone(self.abbrevs, self.features, line.split(":"), rev_abbrevs=self.rev_abbrevs) for line in phone_sec.decode("utf-8").split("\n") if ":" in line]
-        return {phone.name : phone for phone in phones}
+    def map_phones(self, phone_sec, abbrev_sec):
+#        phones = [Phone(self.abbrevs, self.features, line.split(":"), rev_abbrevs=self.rev_abbrevs) for line in phone_sec.decode("utf-8").split("\n") if ":" in line]
+#        return {phone.name : phone for phone in phones}
+        combined = phone_sec + abbrev_sec
+        return {line.split(":")[0].split()[-1].strip() : get_features(self.features,line.split(":")[1].strip()) for line in 
+                filter(lambda x:
+                           x and "ABBREV" not in x and "PHONE" not in x, combined.split("\n"))}        
 
     def read_syllables(self, syll_sec):
         syllables = set([line.strip() for line in 
                 filter(lambda x:
                            x and "SYLL" not in x, syll_sec.split("\n"))])
-        onsets = set([syll.split(self.rev_abbrevs["+syll"])[0] for syll in syllables])
-        codas = set([syll.split(self.rev_abbrevs["+syll"])[1] for syll in syllables])
-        nuclei = set(self.rev_abbrevs["+syll"])
+
+        nuclei = set([phone for phone in self.phones.keys() if self.phones[phone]["syll"] == TRUE])
+        onsets = set([re.split("["+"".join(nuclei)+"]",syll)[0] for syll in syllables])
+        codas = set([re.split("["+"".join(nuclei)+"]",syll)[1] for syll in syllables])
         return {'syllables':syllables,'onsets':onsets,'codas':codas}
 
     def parse_rules(self, rule_sec):
