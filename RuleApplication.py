@@ -114,18 +114,29 @@ class Executor():
     def match_env(self, rule, word, index):
         """given location of a matching phone  and a rule, check if the phone is in the environment"""
         sylls = [phone.syll for phone in word]
-        if not self.segs_match(rule.pre_env,sylls,index,word,False,True):
+        matched = False
+        for env in rule.pre_env:
+            if self.segs_match(env,sylls,index,word,False,True):
+                matched = True
+        if not matched:
             return False
-        if not self.segs_match(rule.post_env,sylls,index,word,False,False):
-            return False
-        return True
+        matched = False
+        for env in rule.post_env:
+            if self.segs_match(env,sylls,index,word,False,False):
+                matched = True
+        return matched
     
     def match_rule_seg(self, rule, seg):
         """determine if this phone matches the rule"""
-        for feat in rule.seg_match.keys():
-            if not match_features(seg.features,rule.seg_match):
-                return False
-        return True
+        for option in rule.seg_match:
+            matched = True
+            for feat in option.keys():
+                if not match_features(seg.features,option):
+                    matched = False
+                    break
+            if matched == True:
+                return True
+        return False
 
     def change_features(self,rule, seg): 
         """change features of matched phone"""
@@ -242,14 +253,23 @@ class Rule(object):
     def __init__(self, rule_str, features, abbrevs):
         self.rule_str = rule_str
         self.features = features
+        self.abbrevs = abbrevs
         rule_list = re.split('[/>_]',rule_str)
-        self.seg_match = self.get_seg_feats(rule_list[0].strip()) # A
-        self.seg_change = self.get_seg_feats(rule_list[1].strip()) # B
-        self.pre_env = rule_list[2].strip() if len(rule_list) > 2 else None # C
-        self.post_env = rule_list[3].strip() if len(rule_list) > 2 else None # D
+        self.seg_match = self.get_seg_feats(self.divide_segs(rule_list[0].strip())) # A
+        self.seg_change = self.get_seg_feats([rule_list[1].strip()])[0] # B
+        self.pre_env = self.divide_segs(rule_list[2].strip()) if len(rule_list) > 2 else None # C
+        self.post_env = self.divide_segs(rule_list[3].strip()) if len(rule_list) > 2 else None # D
+
+    def divide_segs(self, segs):
+        return re.sub("[{}]", "", segs).split(",")
 
     def get_seg_feats(self, match_str):
-        return get_features(self.features, re.sub("[\[|\]]","",match_str.strip()))
+        print type(match_str), match_str
+        for match in match_str:
+            print match
+        a = [get_features(self.features, re.sub("[\[|\]]","",match.strip())) if match not in self.abbrevs else self.abbrevs[match] for match in match_str]
+        print a
+        return a
         
     def has_env(self):
         return not (self.pre_env and self.post_env)
