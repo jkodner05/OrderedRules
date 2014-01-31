@@ -106,9 +106,6 @@ class Executor():
         for i, phone in enumerate(word):
             phone.syll = sylls[i]
             phone.mora = moras[i]
-        print "coda", sylls
-        print "coda", moras
-        
         return
 
     def match_env(self, rule, word, index):
@@ -200,7 +197,6 @@ class GlobalGrammar():
         self.syllables = self.read_syllables(sec_filter(full, "SYLL"))
         self.rules = self.parse_rules(sec_filter(full, "RULE"))
         for rule in self.rules:
-            print rule.rule_str
         return full
 
     def read_features(self, feature_sec):
@@ -268,12 +264,7 @@ class Rule(object):
         return re.sub("[{}]", "", segs).split(",")
 
     def get_seg_feats(self, match_str):
-        print type(match_str), match_str
-        for match in match_str:
-            print match
-        a = [get_features(self.features, re.sub("[\[|\]]","",match.strip())) if match not in self.abbrevs else self.abbrevs[match] for match in match_str]
-        print a
-        return a
+        return [get_features(self.features, re.sub("[\[|\]]","",match.strip())) if match not in self.abbrevs else self.abbrevs[match] for match in match_str]
         
     def has_env(self):
         return (self.pre_env and self.post_env)
