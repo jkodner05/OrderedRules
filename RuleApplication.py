@@ -49,7 +49,7 @@ class Executor():
     def getUR(self, flat_word):
         """Get underlying representation of word in Phones"""
         center = [self.getPhoneUR(char) for char in flat_word]
-        ends = [Phone(self.grammar.features,"#",boundary=True)]*PADDING*2
+        ends = [Phone(copy(self.grammar.phones[self.grammar.phone_char_mappings["#"]]), "#", False)]*PADDING*2
         ends[PADDING:PADDING] = center
         return ends
 
@@ -196,7 +196,6 @@ class GlobalGrammar():
         self.phone_char_mappings = self.map_phone_chars(sec_filter(full, "PHONEME"), sec_filter(full, "ABBREV"))
         self.syllables = self.read_syllables(sec_filter(full, "SYLL"))
         self.rules = self.parse_rules(sec_filter(full, "RULE"))
-        for rule in self.rules:
         return full
 
     def read_features(self, feature_sec):
@@ -303,7 +302,7 @@ grammar.syllabify(phones)
 for rule in grammar.grammar.rules:
     print rule.rule_str
     print grammar.get_word_representation(phones)
-    print grammar.apply_rule(rule,phones)
+    grammar.apply_rule(rule,phones)
     print grammar.get_word_representation(phones)
 #for phone in phones:
 #    print phone.name, phone.features
