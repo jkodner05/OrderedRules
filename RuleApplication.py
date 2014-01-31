@@ -113,6 +113,8 @@ class Executor():
 
     def match_env(self, rule, word, index):
         """given location of a matching phone  and a rule, check if the phone is in the environment"""
+        if not rule.has_env():
+            return True
         sylls = [phone.syll for phone in word]
         matched = False
         for env in rule.pre_env:
@@ -272,7 +274,7 @@ class Rule(object):
         return a
         
     def has_env(self):
-        return not (self.pre_env and self.post_env)
+        return (self.pre_env and self.post_env)
 
 class Phone(object):
     """Representation of phone. Contains feature information, character representation information, and syllabification related information"""
