@@ -199,6 +199,8 @@ class GlobalGrammar():
         self.phone_char_mappings = self.map_phone_chars(sec_filter(full, "PHONEME"), sec_filter(full, "ABBREV"))
         self.syllables = self.read_syllables(sec_filter(full, "SYLL"))
         self.rules = self.parse_rules(sec_filter(full, "RULE"))
+        for rule in self.rules:
+            print rule.rule_str
         return full
 
     def read_features(self, feature_sec):
@@ -243,9 +245,9 @@ class GlobalGrammar():
         A, C, D may be phones, abbreviations, or sets of features
         B may be a phone or set of features"""
 
-        rules = set([line.strip() for line in 
+        rules = [line.strip() for line in 
                 filter(lambda x:
-                           x and "RULE" not in x, rule_sec.split("\n"))])
+                           x and "RULE" not in x, rule_sec.split("\n"))]
         return [Rule(rule,self.features,self.phones) for rule in rules]
 
 
