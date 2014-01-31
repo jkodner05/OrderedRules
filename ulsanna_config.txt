@@ -64,3 +64,4 @@ CVCC#
 !RULES
 N > [-nas -son] / C_V
 {a,i} > o
+o > æ / {#,n}_
