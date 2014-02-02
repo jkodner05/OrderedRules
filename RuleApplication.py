@@ -158,13 +158,14 @@ class Executor():
     def get_char_representation(self, seg):
         """Determine character representation of phone"""
         char_rep = seg.features.__str__()
+        best = len(seg.features)
         for phone in self.grammar.phones.keys():
-            match = True
+            errors = 0
             for feat in self.grammar.phones[phone].keys():
                 if seg.features[feat] != self.grammar.phones[phone][feat]:
-                    match = False
-                    continue
-            if match:
+                    errors += 1
+            if errors < best:
+                best = errors
                 char_rep = self.grammar.phone_char_mappings[phone]
         if char_rep != "#":
             return char_rep
