@@ -52,8 +52,8 @@ o: -cons +son +syll -hi -low -tns +rnd +back -fro +cont +voi -nas -break
 !ABBREVIATIONS
 V: +syll -break
 C: -syll -break
-N: +nas -syll -break
 #: +break
+N: +nas -syll -break
 
 !SYLLABIFICATION
 V
@@ -65,4 +65,3 @@ CVCC#
 N > [-nas -son] / C_V
 {a,i} > o
 o > æ / #_
-C > s

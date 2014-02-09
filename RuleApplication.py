@@ -207,7 +207,7 @@ class GlobalGrammar():
 
     def map_phones(self, phone_sec, abbrev_sec):
         """map phonemes, abbreviations, and word boundary (#) characters to dictionaries of binary feature values"""
-        combined = phone_sec + abbrev_sec + "#: "
+        combined = phone_sec + abbrev_sec
         return {line.split(":")[0].split()[-1].strip() : get_features(self.features,line.split(":")[1].strip()) for line in 
                 filter(lambda x:
                            x and "ABBREV" not in x and "PHONE" not in x, combined.split("\n"))}        
@@ -273,18 +273,11 @@ class Phone(object):
     """Representation of phone. Contains feature information, character representation information, and syllabification related information"""
 
     def __init__(self, features=None, phone=None, boundary=False):
-        if not boundary:
-            self.syll = -1
-            self.mora = False
-            self.mapped = phone
-            self.name = phone
-            self.features = features
-        else:
-            self.syll = -1
-            self.mora = False
-            self.mapped = '#'
-            self.name = '#'
-            self.features = get_features(features, None)
+        self.syll = -1
+        self.mora = False
+        self.mapped = phone
+        self.name = phone
+        self.features = features
 
     def __str__(self):
         """Don't use this. Unicode mess"""
