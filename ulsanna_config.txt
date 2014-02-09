@@ -65,3 +65,4 @@ CVCC#
 N > [-nas -son] / C_V
 {a,i} > o
 o > æ / #_
+o > ∅

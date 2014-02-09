@@ -139,6 +139,10 @@ class Executor():
 
     def change_features(self,rule, seg): 
         """change features of matched phone"""
+        if not rule.seg_change: #mark this segment for deletion if this is a deletion rule
+            seg.to_delete = True
+            print "DELETE"
+            return
         for feat in rule.seg_change.keys():
             if rule.seg_change[feat] != UNDEF:
                 seg.features[feat] = rule.seg_change[feat]
@@ -153,6 +157,8 @@ class Executor():
             if self.match_rule_seg(rule,phone):
                 if self.match_env(rule,word,i):
                     self.change_features(rule,phone)
+        #filter out segments meant for deletion
+        word =  filter(lambda x: x.to_delete == False, word)
         return word
 
     def get_char_representation(self, seg):
@@ -264,7 +270,7 @@ class Rule(object):
         return re.sub("[{}]", "", segs).split(",")
 
     def get_seg_feats(self, match_str):
-        return [get_features(self.features, re.sub("[\[|\]]","",match.strip())) if match not in self.abbrevs else self.abbrevs[match] for match in match_str]
+        return [None] if "∅" in match_str else [get_features(self.features, re.sub("[\[|\]]","",match.strip())) if match not in self.abbrevs else self.abbrevs[match] for match in match_str]
         
     def has_env(self):
         return (self.pre_env and self.post_env)
@@ -278,6 +284,7 @@ class Phone(object):
         self.mapped = phone
         self.name = phone
         self.features = features
+        self.to_delete = False
 
     def __str__(self):
         """Don't use this. Unicode mess"""
@@ -296,7 +303,7 @@ grammar.syllabify(phones)
 for rule in grammar.grammar.rules:
     print rule.rule_str
     print grammar.get_word_representation(phones)
-    grammar.apply_rule(rule,phones)
+    phones = grammar.apply_rule(rule,phones)
     print grammar.get_word_representation(phones)
 #for phone in phones:
 #    print phone.name, phone.features
