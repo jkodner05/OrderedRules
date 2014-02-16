@@ -7,6 +7,8 @@ TRUE = 1
 FALSE = 0
 UNDEF = 2
 
+NULL = "∅"
+
 PADDING = 2
 
 def get_features(feature_list, these_feature):
@@ -114,8 +116,11 @@ class Executor():
             return True
         sylls = [phone.syll for phone in word]
         matched = False
+        pre_index = index
+        if None in rule.seg_match:
+            pre_index += 1
         for env in rule.pre_env:
-            if self.segs_match(env,sylls,index,word,False,True):
+            if self.segs_match(env,sylls,pre_index,word,False,True):
                 matched = True
         if not matched:
             return False
@@ -127,6 +132,8 @@ class Executor():
     
     def match_rule_seg(self, rule, seg):
         """determine if this phone matches the rule"""
+        if None in rule.seg_match:
+            return True
         for option in rule.seg_match:
             matched = True
             for feat in option.keys():
@@ -141,7 +148,9 @@ class Executor():
         """change features of matched phone"""
         if not rule.seg_change: #mark this segment for deletion if this is a deletion rule
             seg.to_delete = True
-            print "DELETE"
+            return
+        if None in rule.seg_match: #mark this for insertion if this is an insertion rule
+            seg.add_here = True
             return
         for feat in rule.seg_change.keys():
             if rule.seg_change[feat] != UNDEF:
@@ -159,6 +168,12 @@ class Executor():
                     self.change_features(rule,phone)
         #filter out segments meant for deletion
         word =  filter(lambda x: x.to_delete == False, word)
+        #Add new phones
+        for i, phone in reversed(list(enumerate(word))):
+            if phone.add_here:
+                print i, phone.name
+                phone.add_here = False
+                word.insert(i+1, self.getPhoneUR(rule.seg_change_str.strip()))
         return word
 
     def get_char_representation(self, seg):
@@ -265,12 +280,14 @@ class Rule(object):
         self.seg_change = self.get_seg_feats([rule_list[1].strip()])[0] # B
         self.pre_env = self.divide_segs(rule_list[2].strip()) if len(rule_list) > 2 else None # C
         self.post_env = self.divide_segs(rule_list[3].strip()) if len(rule_list) > 2 else None # D
+        self.seg_match_str = rule_list[0]
+        self.seg_change_str = rule_list[1]
 
     def divide_segs(self, segs):
         return re.sub("[{}]", "", segs).split(",")
 
     def get_seg_feats(self, match_str):
-        return [None] if "∅" in match_str else [get_features(self.features, re.sub("[\[|\]]","",match.strip())) if match not in self.abbrevs else self.abbrevs[match] for match in match_str]
+        return [None] if NULL in match_str else [get_features(self.features, re.sub("[\[|\]]","",match.strip())) if match not in self.abbrevs else self.abbrevs[match] for match in match_str]
         
     def has_env(self):
         return (self.pre_env and self.post_env)
@@ -285,6 +302,7 @@ class Phone(object):
         self.name = phone
         self.features = features
         self.to_delete = False
+        self.add_here = False
 
     def __str__(self):
         """Don't use this. Unicode mess"""
@@ -297,7 +315,7 @@ class Phone(object):
 
 
 grammar = Executor(GlobalGrammar(u'ulsanna_config.txt'))
-phones = grammar.getUR(u'arnirn')   
+phones = grammar.getUR(u'arnirnananu')   
 grammar.syllabify(phones)
 
 for rule in grammar.grammar.rules:
