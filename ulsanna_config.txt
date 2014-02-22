@@ -65,6 +65,7 @@ CVCC#
 N > [-nas -son] / C_V
 {a,i} > e
 e > æ / #_
-V > ∅ / eC_CV
+V > ∅ / eC_NV
 e > [-tns] / _N
 ∅ > ə / n_n
+ɛ > u / {r,n}{d,n}_

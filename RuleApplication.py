@@ -2,6 +2,7 @@
 import codecs
 from copy import copy
 import re
+from collections import OrderedDict
 
 TRUE = 1
 FALSE = 0
@@ -65,9 +66,12 @@ class Executor():
             potential = [phone.features for phone in word[piv_index+1:]]
             potential_sylls = sylls[piv_index+1:]
         for i,feats in enumerate(segments):
+            match = False
             for seg in segments[i]:
-                if not match_features(potential[i], grammar.grammar.phones[seg]) or (syll_aware and potential_sylls[i] >= 0):
-                    return False
+                if match_features(potential[i], grammar.grammar.phones[seg]) or (syll_aware and potential_sylls[i] >= 0):
+                    match = True
+            if not match:
+                return False
         return True
 
     def clean_len(self, segment):
@@ -115,33 +119,26 @@ class Executor():
         if not rule.has_env():
             return True
         sylls = [phone.syll for phone in word]
-        matched = False
         pre_index = index
+        post_index = index
         if None in rule.seg_match:
             pre_index += 1
-        for env in rule.pre_env:
-            if self.segs_match(env,sylls,pre_index,word,False,True):
-                matched = True
-        if not matched:
+#            post_index -= 1
+        if not self.segs_match(rule.pre_env,sylls,pre_index,word,False,True):
             return False
-        matched = False
-        for env in rule.post_env:
-            if self.segs_match(env,sylls,index,word,False,False):
-                matched = True
-        return matched
+        if not rule.post_env:            
+            return True
+        if self.segs_match(rule.post_env,sylls,post_index,word,False,False):
+            return True
+        return False
     
     def match_rule_seg(self, rule, seg):
         """determine if this phone matches the rule"""
         if None in rule.seg_match:
             return True
         for option in rule.seg_match:
-            matched = True
-            for feat in option.keys():
-                if not match_features(seg.features,option):
-                    matched = False
-                    break
-            if matched == True:
-                return True
+            if match_features(seg.features,option):
+                    return True
         return False
 
     def change_features(self,rule, seg): 
@@ -171,7 +168,6 @@ class Executor():
         #Add new phones
         for i, phone in reversed(list(enumerate(word))):
             if phone.add_here:
-                print i, phone.name
                 phone.add_here = False
                 word.insert(i+1, self.getPhoneUR(rule.seg_change_str.strip()))
         return word
@@ -276,7 +272,7 @@ class Rule(object):
         self.features = features
         self.abbrevs = abbrevs
         rule_list = re.split('[/>_]',rule_str)
-        self.seg_match = self.get_seg_feats(self.divide_segs(rule_list[0].strip())) # A
+        self.seg_match = [self.get_seg_feats(match) for match in self.divide_segs(rule_list[0].strip())][0] # A
         self.seg_change = self.get_seg_feats([rule_list[1].strip()])[0] # B
         self.pre_env = self.divide_segs(rule_list[2].strip()) if len(rule_list) > 2 else None # C
         self.post_env = self.divide_segs(rule_list[3].strip()) if len(rule_list) > 2 else None # D
@@ -284,13 +280,42 @@ class Rule(object):
         self.seg_change_str = rule_list[1]
 
     def divide_segs(self, segs):
-        return re.sub("[{}]", "", segs).split(",")
+#        print "0.",segs.decode("utf-8"), segs
+#        print "1.",filter(lambda x: x, re.split("[{}]",segs.decode("utf-8")))
+#        a = filter(lambda x: x, re.split("[{}]",segs.decode("utf-8")))
+#        if a:
+#            print NULL in filter(lambda x: x, re.split("[{}]",segs.decode("utf-8")))[0].encode("utf-8")
+#            print NULL in [f.encode("utf-8") for f in filter(lambda x: x, re.split("[{}]",segs.decode("utf-8")))][0]
+#        print "2.",map(lambda x: x.split("{,}"),filter(lambda x: x, re.split("[{}]",segs)))
+#        print "3.",map(lambda y: list(OrderedDict.fromkeys([str(i)+char if ',' not in seg else seg for i, seg in enumerate(y) for char in seg])), map(lambda x: x.split("{,}"),filter(lambda x: x, re.split("[{}]",segs))))
+#        print "4.",map(lambda z: [re.sub(r"\d","",char) for char in z],map(lambda y: list(OrderedDict.fromkeys([str(i)+char if ',' not in seg else seg for seg in y for i,char in enumerate(seg)])), map(lambda x: x.split("{,}"),filter(lambda x: x, re.split("[{}]",segs)))))
+#        print "5.",map(lambda w: [seg.split(",") for seg in w],map(lambda z: [re.sub(r"\d","",char) for char in z],map(lambda y: list(OrderedDict.fromkeys([str(i)+char if ',' not in seg else seg for i, seg in enumerate(y) for char in seg])), map(lambda x: x.split("{,}"),filter(lambda x: x, re.split("[{}]",segs))))))
+#        print "6.",[[x.encode("utf-8") for x in options] for seg in map(lambda w: [seg.split(",") for seg in w],map(lambda z: [re.sub(r"\d","",char) for char in z],map(lambda y: list(OrderedDict.fromkeys([str(i)+char if ',' not in seg else seg for i, seg in enumerate(y) for char in seg])), map(lambda x: x.split("{,}"),filter(lambda x: x, re.split("[{}]",segs.decode("utf-8"))))))) for options in seg]
+#        print [NULL] in [[x.encode("utf-8") for x in options] for seg in map(lambda w: [seg.split(",") for seg in w],map(lambda z: [re.sub(r"\d","",char) for char in z],map(lambda y: list(OrderedDict.fromkeys([str(i)+char if ',' not in seg else seg for i, seg in enumerate(y) for char in seg])), map(lambda x: x.split("{,}"),filter(lambda x: x, re.split("[{}]",segs.decode("utf-8"))))))) for options in seg]
+#        print "2b",map(def serial(y): [char for seg in y for char in seg] if ',' not, map(lambda x: x.split("{,}"),filter(lambda x: x, re.split("[{}]",segs))))
+#        print "3.",map(lambda x: map(lambda y: list(y),x.split(",")),filter(lambda x: x, re.split("[{}]",segs))), re.sub("[{}]", "", segs).split(",")
+#        return map(lambda x: map(lambda y: list(y),x.split(",")),filter(lambda x: x, re.split("[{}]",segs)))
+#        return re.sub("[{}]", "", segs).split(",")
+        return [[x.encode("utf-8") for x in options] for seg in 
+                map(lambda w: 
+                    [seg.split(",") for seg in w],
+                    map(lambda z: 
+                        [re.sub(r"\d","",char) for char in z],
+                        map(lambda y: 
+                            list(OrderedDict.fromkeys([str(i)+char if ',' not in seg else seg 
+                                                       for i, seg in enumerate(y) for char in seg])), 
+                            map(lambda x: 
+                                x.split("{,}"),
+                                filter(lambda x: x and x != NULL, re.split("[{}]",segs.decode("utf-8"))))))) 
+                for options in seg]
 
     def get_seg_feats(self, match_str):
+#        print "\tmatch str",match_str
+#        print NULL in match_str
         return [None] if NULL in match_str else [get_features(self.features, re.sub("[\[|\]]","",match.strip())) if match not in self.abbrevs else self.abbrevs[match] for match in match_str]
         
     def has_env(self):
-        return (self.pre_env and self.post_env)
+        return (self.pre_env or self.post_env)
 
 class Phone(object):
     """Representation of phone. Contains feature information, character representation information, and syllabification related information"""
@@ -315,7 +340,7 @@ class Phone(object):
 
 
 grammar = Executor(GlobalGrammar(u'ulsanna_config.txt'))
-phones = grammar.getUR(u'arnirnananu')   
+phones = grammar.getUR(u'arnernaninuri')   
 grammar.syllabify(phones)
 
 for rule in grammar.grammar.rules:
