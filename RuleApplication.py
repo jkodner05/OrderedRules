@@ -68,7 +68,8 @@ class Executor():
         for i,feats in enumerate(segments):
             match = False
             for seg in segments[i]:
-                if match_features(potential[i], grammar.grammar.phones[seg]) or (syll_aware and potential_sylls[i] >= 0):
+#                print "seg",seg
+                if match_features(potential[i], seg) or (syll_aware and potential_sylls[i] >= 0):
                     match = True
             if not match:
                 return False
@@ -93,7 +94,7 @@ class Executor():
         for nucleus in nuclei:
             matched = ''
             for onset in self.grammar.syllables["onsets"]:
-                if self.segs_match(onset,sylls,nucleus,word,True,True):
+                if self.segs_match([[grammar.grammar.phones[phone]] for phone in onset],sylls,nucleus,word,True,True):
                     if self.clean_len(onset) > self.clean_len(matched):
                         matched = onset
             for i in range(nucleus-self.clean_len(matched),nucleus):
@@ -102,7 +103,7 @@ class Executor():
         for nucleus in nuclei:
             matched = ''
             for coda in self.grammar.syllables["codas"]:
-                if self.segs_match(coda,sylls,nucleus,word,True,False):
+                if self.segs_match([[grammar.grammar.phones[phone]] for phone in onset],sylls,nucleus,word,True,False):
                     if self.clean_len(coda) > self.clean_len(matched):
                         matched = coda
             for i in range(nucleus+1,nucleus+self.clean_len(matched)+1):
@@ -121,7 +122,7 @@ class Executor():
         sylls = [phone.syll for phone in word]
         pre_index = index
         post_index = index
-        if None in rule.seg_match:
+        if [[None]] in rule.seg_match:
             pre_index += 1
 #            post_index -= 1
         if not self.segs_match(rule.pre_env,sylls,pre_index,word,False,True):
@@ -134,19 +135,20 @@ class Executor():
     
     def match_rule_seg(self, rule, seg):
         """determine if this phone matches the rule"""
-        if None in rule.seg_match:
+        print "insert?",rule.seg_match
+        if [[None]] in rule.seg_match:
             return True
         for option in rule.seg_match:
-            if match_features(seg.features,option):
+            if match_features(seg.features,option[0]):
                     return True
         return False
 
     def change_features(self,rule, seg): 
         """change features of matched phone"""
-        if not rule.seg_change: #mark this segment for deletion if this is a deletion rule
+        if None in rule.seg_change: #mark this segment for deletion if this is a deletion rule
             seg.to_delete = True
             return
-        if None in rule.seg_match: #mark this for insertion if this is an insertion rule
+        if [[None]] in rule.seg_match: #mark this for insertion if this is an insertion rule
             seg.add_here = True
             return
         for feat in rule.seg_change.keys():
@@ -272,9 +274,15 @@ class Rule(object):
         self.features = features
         self.abbrevs = abbrevs
         rule_list = re.split('[/>_]',rule_str)
-        self.seg_match = [self.get_seg_feats(match) for match in self.divide_segs(rule_list[0].strip())][0] # A
-        self.seg_change = self.get_seg_feats([rule_list[1].strip()])[0] # B
+#        self.seg_match = [self.get_seg_feats(match) for match in self.divide_segs(rule_list[0].strip())][0] # A
+        self.seg_match = self.divide_segs(rule_list[0].strip()) #A
+        print "sm\t", self.seg_match
+#        self.seg_match = [self.get_seg_feats(match) for match in self.divide_segs(rule_list[0].strip())][0] # A
+        self.seg_change = self.get_seg_feats([rule_list[1].strip()]) # B
+#        print "sc\t",self.seg_change
+#        self.seg_change = self.get_seg_feats([rule_list[1].strip()])[0] # B
         self.pre_env = self.divide_segs(rule_list[2].strip()) if len(rule_list) > 2 else None # C
+        print "pre env", self.pre_env
         self.post_env = self.divide_segs(rule_list[3].strip()) if len(rule_list) > 2 else None # D
         self.seg_match_str = rule_list[0]
         self.seg_change_str = rule_list[1]
@@ -300,14 +308,21 @@ class Rule(object):
             def rectify_sets(segs):
                 return [[[char.encode("utf-8")] for option in seg for char in option] if len(seg) <= 1 else [[char.encode("utf-8") for option in seg for char in option]] for seg in segs]
 
-            return [char for seg in rectify_sets(segs) for char in seg]
+            return [[self.get_seg_feats(char)] for seg in rectify_sets(segs) for char in seg]
 
         return flatten(map(split_options, split_sets(segs)))
 
     def get_seg_feats(self, match_str):
-#        print "\tmatch str",match_str
+        print "\tmatch str",match_str
 #        print NULL in match_str
-        return [None] if NULL in match_str else [get_features(self.features, re.sub("[\[|\]]","",match.strip())) if match not in self.abbrevs else self.abbrevs[match] for match in match_str]
+        if NULL in match_str:
+            return [None]
+        elif match_str[0] not in self.abbrevs:
+            print match_str[0]
+            return get_features(self.features, re.sub("[\[|\]]","",match_str[0].strip()))
+        else:
+            return self.abbrevs[match_str[0]]
+#        return [None] if NULL in match_str else [get_features(self.features, re.sub("[\[|\]]","",match.strip())) if match not in self.abbrevs else self.abbrevs[match] for match in match_str]
         
     def has_env(self):
         return (self.pre_env or self.post_env)
