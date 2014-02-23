@@ -69,3 +69,5 @@ V > ∅ / eC_NV
 e > [-tns] / _N
 ∅ > ə / n_n
 ɛ > u / {r,n}{d,n}_
+u > o / V[+nas]_
+a > b / {a, [-tns +hi]} CC [+cons]_

@@ -280,34 +280,29 @@ class Rule(object):
         self.seg_change_str = rule_list[1]
 
     def divide_segs(self, segs):
-#        print "0.",segs.decode("utf-8"), segs
-#        print "1.",filter(lambda x: x, re.split("[{}]",segs.decode("utf-8")))
-#        a = filter(lambda x: x, re.split("[{}]",segs.decode("utf-8")))
-#        if a:
-#            print NULL in filter(lambda x: x, re.split("[{}]",segs.decode("utf-8")))[0].encode("utf-8")
-#            print NULL in [f.encode("utf-8") for f in filter(lambda x: x, re.split("[{}]",segs.decode("utf-8")))][0]
-#        print "2.",map(lambda x: x.split("{,}"),filter(lambda x: x, re.split("[{}]",segs)))
-#        print "3.",map(lambda y: list(OrderedDict.fromkeys([str(i)+char if ',' not in seg else seg for i, seg in enumerate(y) for char in seg])), map(lambda x: x.split("{,}"),filter(lambda x: x, re.split("[{}]",segs))))
-#        print "4.",map(lambda z: [re.sub(r"\d","",char) for char in z],map(lambda y: list(OrderedDict.fromkeys([str(i)+char if ',' not in seg else seg for seg in y for i,char in enumerate(seg)])), map(lambda x: x.split("{,}"),filter(lambda x: x, re.split("[{}]",segs)))))
-#        print "5.",map(lambda w: [seg.split(",") for seg in w],map(lambda z: [re.sub(r"\d","",char) for char in z],map(lambda y: list(OrderedDict.fromkeys([str(i)+char if ',' not in seg else seg for i, seg in enumerate(y) for char in seg])), map(lambda x: x.split("{,}"),filter(lambda x: x, re.split("[{}]",segs))))))
-#        print "6.",[[x.encode("utf-8") for x in options] for seg in map(lambda w: [seg.split(",") for seg in w],map(lambda z: [re.sub(r"\d","",char) for char in z],map(lambda y: list(OrderedDict.fromkeys([str(i)+char if ',' not in seg else seg for i, seg in enumerate(y) for char in seg])), map(lambda x: x.split("{,}"),filter(lambda x: x, re.split("[{}]",segs.decode("utf-8"))))))) for options in seg]
-#        print [NULL] in [[x.encode("utf-8") for x in options] for seg in map(lambda w: [seg.split(",") for seg in w],map(lambda z: [re.sub(r"\d","",char) for char in z],map(lambda y: list(OrderedDict.fromkeys([str(i)+char if ',' not in seg else seg for i, seg in enumerate(y) for char in seg])), map(lambda x: x.split("{,}"),filter(lambda x: x, re.split("[{}]",segs.decode("utf-8"))))))) for options in seg]
-#        print "2b",map(def serial(y): [char for seg in y for char in seg] if ',' not, map(lambda x: x.split("{,}"),filter(lambda x: x, re.split("[{}]",segs))))
-#        print "3.",map(lambda x: map(lambda y: list(y),x.split(",")),filter(lambda x: x, re.split("[{}]",segs))), re.sub("[{}]", "", segs).split(",")
-#        return map(lambda x: map(lambda y: list(y),x.split(",")),filter(lambda x: x, re.split("[{}]",segs)))
-#        return re.sub("[{}]", "", segs).split(",")
-        return [[x.encode("utf-8") for x in options] for seg in 
-                map(lambda w: 
-                    [seg.split(",") for seg in w],
-                    map(lambda z: 
-                        [re.sub(r"\d","",char) for char in z],
-                        map(lambda y: 
-                            list(OrderedDict.fromkeys([str(i)+char if ',' not in seg else seg 
-                                                       for i, seg in enumerate(y) for char in seg])), 
-                            map(lambda x: 
-                                x.split("{,}"),
-                                filter(lambda x: x and x != NULL, re.split("[{}]",segs.decode("utf-8"))))))) 
-                for options in seg]
+
+        def split_sets(raw_str):
+            return filter(None, re.split("[{}]",raw_str.decode("utf-8")))
+
+        def split_comma(seg):
+            return re.sub("\[","{\[",re.sub("\]","\]}",seg)).split(",")
+
+        def split_options(seg):
+            return [split_chars(filter(None,re.split("[{}]", seg.strip()))) for seg in re.sub("\[","{[",re.sub("\]","]}",seg)).split(",")]
+
+        def split_chars(options):
+            return unnest([[char for char in option.strip()] if '[' not in option else [option] for option in options])
+
+        def unnest(seg):
+            return [option for options in seg for option in options]
+
+        def flatten(segs):
+            def rectify_sets(segs):
+                return [[[char.encode("utf-8")] for option in seg for char in option] if len(seg) <= 1 else [[char.encode("utf-8") for option in seg for char in option]] for seg in segs]
+
+            return [char for seg in rectify_sets(segs) for char in seg]
+
+        return flatten(map(split_options, split_sets(segs)))
 
     def get_seg_feats(self, match_str):
 #        print "\tmatch str",match_str
