@@ -113,7 +113,7 @@ class Executor():
         for i, phone in enumerate(word):
             phone.syll = sylls[i]
             phone.mora = moras[i]
-        return
+        return word
 
     def match_env(self, rule, word, index):
         """given location of a matching phone  and a rule, check if the phone is in the environment"""
@@ -135,7 +135,6 @@ class Executor():
     
     def match_rule_seg(self, rule, seg):
         """determine if this phone matches the rule"""
-        print "insert?",rule.seg_match
         if [[None]] in rule.seg_match:
             return True
         for option in rule.seg_match:
@@ -350,13 +349,17 @@ class Phone(object):
 
 
 grammar = Executor(GlobalGrammar(u'ulsanna_config.txt'))
+test_phones = [grammar.getUR(u'arnernaninuri')]
 phones = grammar.getUR(u'arnernaninuri')   
-grammar.syllabify(phones)
 
-for rule in grammar.grammar.rules:
-    print rule.rule_str
-    print grammar.get_word_representation(phones)
-    phones = grammar.apply_rule(rule,phones)
-    print grammar.get_word_representation(phones)
+for phones in test_phones:
+    phones = grammar.syllabify(phones)
+    for rule in grammar.grammar.rules:
+        print rule.rule_str
+        print grammar.get_word_representation(phones)
+        phones = grammar.apply_rule(rule,phones)
+        print grammar.get_word_representation(phones)
+        print ''.join([str(phone.syll) for phone in phones])
+    print '\n---\n'
 #for phone in phones:
 #    print phone.name, phone.features
