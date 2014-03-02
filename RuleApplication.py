@@ -68,8 +68,7 @@ class Executor():
         for i,feats in enumerate(segments):
             match = False
             for seg in segments[i]:
-#                print "seg",seg
-                if match_features(potential[i], seg) or (syll_aware and potential_sylls[i] >= 0):
+                if match_features(potential[i], seg) and (not syll_aware or potential_sylls[i] < 0):
                     match = True
             if not match:
                 return False
@@ -103,7 +102,7 @@ class Executor():
         for nucleus in nuclei:
             matched = ''
             for coda in self.grammar.syllables["codas"]:
-                if self.segs_match([[grammar.grammar.phones[phone]] for phone in onset],sylls,nucleus,word,True,False):
+                if self.segs_match([[grammar.grammar.phones[phone]] for phone in coda],sylls,nucleus,word,True,False):
                     if self.clean_len(coda) > self.clean_len(matched):
                         matched = coda
             for i in range(nucleus+1,nucleus+self.clean_len(matched)+1):
@@ -275,13 +274,13 @@ class Rule(object):
         rule_list = re.split('[/>_]',rule_str)
 #        self.seg_match = [self.get_seg_feats(match) for match in self.divide_segs(rule_list[0].strip())][0] # A
         self.seg_match = self.divide_segs(rule_list[0].strip()) #A
-        print "sm\t", self.seg_match
+#        print "sm\t", self.seg_match
 #        self.seg_match = [self.get_seg_feats(match) for match in self.divide_segs(rule_list[0].strip())][0] # A
         self.seg_change = self.get_seg_feats([rule_list[1].strip()]) # B
 #        print "sc\t",self.seg_change
 #        self.seg_change = self.get_seg_feats([rule_list[1].strip()])[0] # B
         self.pre_env = self.divide_segs(rule_list[2].strip()) if len(rule_list) > 2 else None # C
-        print "pre env", self.pre_env
+#        print "pre env", self.pre_env
         self.post_env = self.divide_segs(rule_list[3].strip()) if len(rule_list) > 2 else None # D
         self.seg_match_str = rule_list[0]
         self.seg_change_str = rule_list[1]
@@ -349,8 +348,8 @@ class Phone(object):
 
 
 grammar = Executor(GlobalGrammar(u'ulsanna_config.txt'))
-test_phones = [grammar.getUR(u'arnernaninuri')]
-phones = grammar.getUR(u'arnernaninuri')   
+test_phones = [grammar.getUR(u'arnernaninurint')]
+#phones = grammar.getUR(u'arnernaninuri')   
 
 for phones in test_phones:
     phones = grammar.syllabify(phones)
@@ -359,7 +358,8 @@ for phones in test_phones:
         print grammar.get_word_representation(phones)
         phones = grammar.apply_rule(rule,phones)
         print grammar.get_word_representation(phones)
-        print ''.join([str(phone.syll) for phone in phones])
+        phones = grammar.syllabify(phones)
+        print ''.join([str(phone.syll) for phone in phones if phone.syll >= 0])
     print '\n---\n'
 #for phone in phones:
 #    print phone.name, phone.features
