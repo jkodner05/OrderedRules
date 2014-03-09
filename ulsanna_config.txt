@@ -71,3 +71,6 @@ e > [-tns] / _N
 ɛ > u / {r,n}{d,n}_
 u > o / V[+nas]_
 a > b / {a, [-tns +hi]} CC [+cons]_
+N > [-nas] / _C
+u > ʊ / _CσC
+ʊ > u / _σCC

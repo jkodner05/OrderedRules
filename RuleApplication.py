@@ -121,7 +121,7 @@ class Executor():
         sylls = [phone.syll for phone in word]
         pre_index = index
         post_index = index
-        if [[None]] in rule.seg_match:
+        if [None] in rule.seg_match:
             pre_index += 1
 #            post_index -= 1
         if not self.segs_match(rule.pre_env,sylls,pre_index,word,False,True):
@@ -134,10 +134,12 @@ class Executor():
     
     def match_rule_seg(self, rule, seg):
         """determine if this phone matches the rule"""
-        if [[None]] in rule.seg_match:
+        if [None] in rule.seg_match:
             return True
+#        print rule.seg_match_str
         for option in rule.seg_match:
-            if match_features(seg.features,option[0]):
+#            print "\t",rule.seg_match_str, option
+            if match_features(seg.features,option):
                     return True
         return False
 
@@ -146,7 +148,7 @@ class Executor():
         if None in rule.seg_change: #mark this segment for deletion if this is a deletion rule
             seg.to_delete = True
             return
-        if [[None]] in rule.seg_match: #mark this for insertion if this is an insertion rule
+        if [None] in rule.seg_match: #mark this for insertion if this is an insertion rule
             seg.add_here = True
             return
         for feat in rule.seg_change.keys():
@@ -269,6 +271,7 @@ class Rule(object):
 
     def __init__(self, rule_str, features, abbrevs):
         self.rule_str = rule_str
+        print rule_str
         self.features = features
         self.abbrevs = abbrevs
         rule_list = re.split('[/>_]',rule_str)
@@ -282,8 +285,51 @@ class Rule(object):
         self.pre_env = self.divide_segs(rule_list[2].strip()) if len(rule_list) > 2 else None # C
 #        print "pre env", self.pre_env
         self.post_env = self.divide_segs(rule_list[3].strip()) if len(rule_list) > 2 else None # D
+
+        self.seg_match = map(lambda y: [self.get_seg_feats(char) for char in y],filter(lambda x: x != ['σ'], self.seg_match))[0]
+
+        if self.pre_env:
+            self.pre_env_sylls = self.count_syll_offsets(self.pre_env, pre=True)
+            self.pre_env = map(lambda y: [self.get_seg_feats(char) for char in y],filter(lambda x: x != ['σ'], self.pre_env))
+        else:
+            self.pre_env_sylls = None
+        if self.post_env:
+            self.post_env_sylls = self.count_syll_offsets(self.post_env, pre=False)
+            self.post_env = map(lambda y: [self.get_seg_feats(char) for char in y],filter(lambda x: x != ['σ'], self.post_env))
+        else:
+            self.post_env_sylls = None
+
+        print "\tseg   match:", self.seg_match
+        print "\tseg  change:", self.seg_change
+        print "\tpre    env:", self.pre_env
+        print "\tpre  sylls:", self.pre_env_sylls
+        print "\tpost   env:", self.post_env
+        print "\tpost sylls:", self.post_env_sylls
+        print "\n\n"
+
         self.seg_match_str = rule_list[0]
         self.seg_change_str = rule_list[1]
+        self.syllable_aware = 'σ' in rule_str
+
+    def count_syll_offsets(self, env, pre):
+        acc = 0
+        sylls = []
+        if pre:
+            inc = lambda a : a-1
+            env.reverse()
+        else:
+            inc = lambda a : a+1
+        for seg in env:
+#            print "abc", seg
+            if seg == ['σ']:
+                acc = inc(acc)
+#                print "acc",acc
+            else:
+                sylls.append(acc)
+        if pre:
+            sylls.reverse()
+            env.reverse()
+        return sylls
 
     def divide_segs(self, segs):
 
@@ -306,12 +352,14 @@ class Rule(object):
             def rectify_sets(segs):
                 return [[[char.encode("utf-8")] for option in seg for char in option] if len(seg) <= 1 else [[char.encode("utf-8") for option in seg for char in option]] for seg in segs]
 
-            return [[self.get_seg_feats(char)] for seg in rectify_sets(segs) for char in seg]
+#            print "unfeated",[char for seg in rectify_sets(segs) for char in seg]
+#            print ""
+            return [char for seg in rectify_sets(segs) for char in seg]
+#            return [[self.get_seg_feats(char)] for seg in rectify_sets(segs) for char in seg]
 
         return flatten(map(split_options, split_sets(segs)))
 
     def get_seg_feats(self, match_str):
-        print "\tmatch str",match_str
 #        print NULL in match_str
         if NULL in match_str:
             return [None]
