@@ -68,6 +68,7 @@ class Executor():
         for i,feats in enumerate(segments):
             match = False
             for seg in segments[i]:
+#                print piv_index, i, len(potential), len(potential_sylls)
                 if match_features(potential[i], seg) and (not syll_aware or potential_sylls[i] < 0):
                     match = True
             if not match:
@@ -216,6 +217,7 @@ class GlobalGrammar():
         self.phone_char_mappings = self.map_phone_chars(sec_filter(full, "PHONEME"), sec_filter(full, "ABBREV"))
         self.syllables = self.read_syllables(sec_filter(full, "SYLL"))
         self.rules = self.parse_rules(sec_filter(full, "RULE"))
+        print self.phones
         return full
 
     def read_features(self, feature_sec):
@@ -279,15 +281,22 @@ class Rule(object):
         self.seg_match = self.divide_segs(rule_list[0].strip()) #A
 #        print "sm\t", self.seg_match
 #        self.seg_match = [self.get_seg_feats(match) for match in self.divide_segs(rule_list[0].strip())][0] # A
-        self.seg_change = self.get_seg_feats([rule_list[1].strip()]) # B
+        self.seg_change = self.get_seg_feats(rule_list[1].strip()) # B
 #        print "sc\t",self.seg_change
 #        self.seg_change = self.get_seg_feats([rule_list[1].strip()])[0] # B
         self.pre_env = self.divide_segs(rule_list[2].strip()) if len(rule_list) > 2 else None # C
 #        print "pre env", self.pre_env
         self.post_env = self.divide_segs(rule_list[3].strip()) if len(rule_list) > 2 else None # D
 
-        self.seg_match = map(lambda y: [self.get_seg_feats(char) for char in y],filter(lambda x: x != ['σ'], self.seg_match))[0]
 
+        print "\tseg   match:", self.seg_match
+        print "\tseg  change:", self.seg_change
+
+        print "\tpre    env:", self.pre_env
+
+        print "\tpost   env:", self.post_env
+        print ""
+        self.seg_match = map(lambda y: [self.get_seg_feats(char) for char in y],filter(lambda x: x != ['σ'], self.seg_match))[0]
         if self.pre_env:
             self.pre_env_sylls = self.count_syll_offsets(self.pre_env, pre=True)
             self.pre_env = map(lambda y: [self.get_seg_feats(char) for char in y],filter(lambda x: x != ['σ'], self.pre_env))
@@ -360,14 +369,15 @@ class Rule(object):
         return flatten(map(split_options, split_sets(segs)))
 
     def get_seg_feats(self, match_str):
-#        print NULL in match_str
+        print NULL in match_str
         if NULL in match_str:
             return [None]
-        elif match_str[0] not in self.abbrevs:
-            print match_str[0]
-            return get_features(self.features, re.sub("[\[|\]]","",match_str[0].strip()))
+        elif match_str not in self.abbrevs:
+            print "MATCH_STR   ", match_str
+            print "MATCH_STR[0]", match_str[0]
+            return get_features(self.features, re.sub("[\[|\]]","",match_str.strip()))
         else:
-            return self.abbrevs[match_str[0]]
+            return self.abbrevs[match_str]
 #        return [None] if NULL in match_str else [get_features(self.features, re.sub("[\[|\]]","",match.strip())) if match not in self.abbrevs else self.abbrevs[match] for match in match_str]
         
     def has_env(self):
