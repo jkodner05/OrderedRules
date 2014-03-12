@@ -56,7 +56,7 @@ class Executor():
         ends[PADDING:PADDING] = center
         return ends
 
-    def segs_match(self, segments, sylls, piv_index, word, syll_aware, is_prefix):
+    def segs_match(self, segments, sylls, piv_index, word, syll_aware, is_prefix, offsets = None):
         """try matching environment of a segment
         may be syllable-aware (syllabification) or not"""
         if is_prefix:
@@ -68,8 +68,7 @@ class Executor():
         for i,feats in enumerate(segments):
             match = False
             for seg in segments[i]:
-#                print piv_index, i, len(potential), len(potential_sylls)
-                if match_features(potential[i], seg) and (not syll_aware or potential_sylls[i] < 0):
+                if match_features(potential[i], seg) and (not syll_aware or (potential_sylls[i] < 0 and not offsets) or (offsets and offsets[i] + sylls[piv_index] == potential_sylls[i])):
                     match = True
             if not match:
                 return False
@@ -125,11 +124,11 @@ class Executor():
         if [None] in rule.seg_match:
             pre_index += 1
 #            post_index -= 1
-        if not self.segs_match(rule.pre_env,sylls,pre_index,word,False,True):
+        if not self.segs_match(rule.pre_env,sylls,pre_index,word,rule.syll_aware,True,offsets=rule.pre_env_sylls):
             return False
         if not rule.post_env:            
             return True
-        if self.segs_match(rule.post_env,sylls,post_index,word,False,False):
+        if self.segs_match(rule.post_env,sylls,post_index,word,rule.syll_aware,False,offsets=rule.post_env_sylls):
             return True
         return False
     
@@ -318,7 +317,7 @@ class Rule(object):
 
         self.seg_match_str = rule_list[0]
         self.seg_change_str = rule_list[1]
-        self.syllable_aware = 'σ' in rule_str
+        self.syll_aware = 'σ' in rule_str
 
     def count_syll_offsets(self, env, pre):
         acc = 0

@@ -74,3 +74,4 @@ a > b / {a, [-tns +hi]} CC [+cons]_
 N > [-nas] / _C
 e > ʊ / _CσC
 ʊ > u / _σCC
+V > i / _CCσ
