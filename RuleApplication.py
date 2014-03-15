@@ -1,5 +1,6 @@
-# -*- coding: utf-8 -*-
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 import codecs
 from copy import copy
 import re
@@ -434,4 +435,7 @@ def main(args):
 
 
 if __name__ == "__main__":
+    if len(sys.argv) != 3:
+        raise ValueError("Correct Usage: python RuleApplication.py <config file> <input file>")
     main(sys.argv[1:])
+
