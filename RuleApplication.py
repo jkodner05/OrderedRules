@@ -51,7 +51,7 @@ class Executor():
 
     def getUR(self, flat_word):
         """Get underlying representation of word in Phones"""
-        center = [self.getPhoneUR(char) for char in flat_word]
+        center = [self.getPhoneUR(char) for char in flat_word.decode("utf-8")]
         ends = [Phone(copy(self.grammar.phones[self.grammar.phone_char_mappings["#"]]), "#", False)]*PADDING*2
         ends[PADDING:PADDING] = center
         return ends
@@ -193,6 +193,24 @@ class Executor():
     def get_word_representation(self, word):
         """Output list of phones in readable format"""
         return "".join([self.get_char_representation(seg) for seg in word])
+
+    def apply_to_inputs(self, filename):
+        with open(filename, "r") as inputfile:
+            URstrs = inputfile.read().split("\n")
+            print URstrs
+#            URstrs = [line.strip() for line in inputfile]
+        for URstr in URstrs:
+#            print URstr
+            phones = grammar.syllabify(grammar.getUR(URstr))
+            for rule in grammar.grammar.rules:
+                print rule.rule_str
+                print grammar.get_word_representation(phones)
+                phones = grammar.apply_rule(rule,phones)
+                print grammar.get_word_representation(phones)
+                phones = grammar.syllabify(phones)
+                print ''.join([str(phone.syll) for phone in phones if phone.syll >= 0])
+            print '\n---\n'
+            
                     
 class GlobalGrammar():
     """Processes config file to represent phonological grammar"""
@@ -209,7 +227,7 @@ class GlobalGrammar():
         """Divide config file into sections, parse each section"""
         f = open(filename, "r")
         in_feat = True
-        full = f.read().split("!")
+        full = f.read().decode("utf-8").split("!")
         sec_filter = lambda x, sec: filter(lambda y: sec in y, x)[0]
         self.features = self.read_features(sec_filter(full, "FEATURE"))
         self.phones = self.map_phones(sec_filter(full, "PHONEME"),sec_filter(full, "ABBREV"))
@@ -272,7 +290,7 @@ class Rule(object):
 
     def __init__(self, rule_str, features, abbrevs):
         self.rule_str = rule_str
-        print rule_str
+#        print rule_str
         self.features = features
         self.abbrevs = abbrevs
         rule_list = re.split('[/>_]',rule_str)
@@ -288,13 +306,14 @@ class Rule(object):
         self.post_env = self.divide_segs(rule_list[3].strip()) if len(rule_list) > 2 else None # D
 
 
-        print "\tseg   match:", self.seg_match
-        print "\tseg  change:", self.seg_change
+#        print "\tseg   match:", self.seg_match
+#        print "\tseg  change:", self.seg_change
 
-        print "\tpre    env:", self.pre_env
+#        print "\tpre    env:", self.pre_env
 
-        print "\tpost   env:", self.post_env
-        print ""
+#        print "\tpost   env:", self.post_env
+#        print ""
+        print self.seg_match
         self.seg_match = map(lambda y: [self.get_seg_feats(char) for char in y],filter(lambda x: x != ['σ'], self.seg_match))[0]
         if self.pre_env:
             self.pre_env_sylls = self.count_syll_offsets(self.pre_env, pre=True)
@@ -307,17 +326,17 @@ class Rule(object):
         else:
             self.post_env_sylls = None
 
-        print "\tseg   match:", self.seg_match
-        print "\tseg  change:", self.seg_change
-        print "\tpre    env:", self.pre_env
-        print "\tpre  sylls:", self.pre_env_sylls
-        print "\tpost   env:", self.post_env
-        print "\tpost sylls:", self.post_env_sylls
-        print "\n\n"
+#        print "\tseg   match:", self.seg_match
+#        print "\tseg  change:", self.seg_change
+#        print "\tpre    env:", self.pre_env
+#        print "\tpre  sylls:", self.pre_env_sylls
+#        print "\tpost   env:", self.post_env
+#        print "\tpost sylls:", self.post_env_sylls
+#        print "\n\n"
 
         self.seg_match_str = rule_list[0]
         self.seg_change_str = rule_list[1]
-        self.syll_aware = 'σ' in rule_str
+        self.syll_aware = 'σ'.decode("utf-8") in rule_str
 
     def count_syll_offsets(self, env, pre):
         acc = 0
@@ -342,7 +361,7 @@ class Rule(object):
     def divide_segs(self, segs):
 
         def split_sets(raw_str):
-            return filter(None, re.split("[{}]",raw_str.decode("utf-8")))
+            return filter(None, re.split("[{}]",raw_str))
 
         def split_comma(seg):
             return re.sub("\[","{\[",re.sub("\]","\]}",seg)).split(",")
@@ -358,7 +377,7 @@ class Rule(object):
 
         def flatten(segs):
             def rectify_sets(segs):
-                return [[[char.encode("utf-8")] for option in seg for char in option] if len(seg) <= 1 else [[char.encode("utf-8") for option in seg for char in option]] for seg in segs]
+                return [[[char] for option in seg for char in option] if len(seg) <= 1 else [[char.encode("utf-8") for option in seg for char in option]] for seg in segs]
 
 #            print "unfeated",[char for seg in rectify_sets(segs) for char in seg]
 #            print ""
@@ -368,12 +387,14 @@ class Rule(object):
         return flatten(map(split_options, split_sets(segs)))
 
     def get_seg_feats(self, match_str):
-        print NULL in match_str
-        if NULL in match_str:
+        print NULL, match_str
+        print NULL.decode("utf-8"), match_str
+        print match_str.encode("utf-8")
+        if NULL in match_str.encode("utf-8"):
             return [None]
         elif match_str not in self.abbrevs:
-            print "MATCH_STR   ", match_str
-            print "MATCH_STR[0]", match_str[0]
+#            print "MATCH_STR   ", match_str
+#            print "MATCH_STR[0]", match_str[0]
             return get_features(self.features, re.sub("[\[|\]]","",match_str.strip()))
         else:
             return self.abbrevs[match_str]
@@ -400,7 +421,7 @@ class Phone(object):
         if not mapped:
             mapped = ""
         title = mapped + " " 
-        print self.features
+#        print self.features
         return title
 
 
@@ -408,15 +429,6 @@ grammar = Executor(GlobalGrammar(u'ulsanna_config.txt'))
 test_phones = [grammar.getUR(u'arnernaninurint')]
 #phones = grammar.getUR(u'arnernaninuri')   
 
-for phones in test_phones:
-    phones = grammar.syllabify(phones)
-    for rule in grammar.grammar.rules:
-        print rule.rule_str
-        print grammar.get_word_representation(phones)
-        phones = grammar.apply_rule(rule,phones)
-        print grammar.get_word_representation(phones)
-        phones = grammar.syllabify(phones)
-        print ''.join([str(phone.syll) for phone in phones if phone.syll >= 0])
-    print '\n---\n'
+grammar.apply_to_inputs("inputs.txt")
 #for phone in phones:
 #    print phone.name, phone.features
