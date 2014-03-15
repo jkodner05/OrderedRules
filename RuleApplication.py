@@ -70,8 +70,11 @@ class Executor():
         for i,feats in enumerate(segments):
             match = False
             for seg in segments[i]:
-                if match_features(potential[i], seg) and (not syll_aware or (potential_sylls[i] < 0 and not offsets) or (offsets and offsets[i] + sylls[piv_index] == potential_sylls[i])):
+                if match_features(potential[i], seg) #regardless of awareness
+                and (not syll_aware or (potential_sylls[i] < 0 and not offsets) #if we're syllabifying
+                     or (offsets and offsets[i] + sylls[piv_index] == potential_sylls[i])): #if we're matching rule environments
                     match = True
+            print syll_aware, match
             if not match:
                 return False
         return True
