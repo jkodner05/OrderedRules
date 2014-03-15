@@ -130,11 +130,11 @@ class Executor():
         if [None] in rule.seg_match:
             pre_index += 1
 #            post_index -= 1
-        if not self.segs_match(rule.pre_env,sylls,pre_index,word,rule.syll_aware,True,offsets=rule.pre_env_sylls):
+        if not self.segs_match(rule.pre_env,sylls,pre_index,word,rule.pre_syll_aware,True,offsets=rule.pre_env_sylls):
             return False
         if not rule.post_env:            
             return True
-        if self.segs_match(rule.post_env,sylls,post_index,word,rule.syll_aware,False,offsets=rule.post_env_sylls):
+        if self.segs_match(rule.post_env,sylls,post_index,word,rule.post_syll_aware,False,offsets=rule.post_env_sylls):
             return True
         return False
     
@@ -205,9 +205,10 @@ class Executor():
             URstrs = inputfile.read().split("\n")
 #            URstrs = [line.strip() for line in inputfile]
         for URstr in URstrs:
-            phones = self.syllabify(self.getUR(URstr))
+            phones = self.syllabify(self.getUR(URstr.strip()))
             lens = len(self.grammar.rules[0][0])
             print "UR".ljust(lens), " |  ", self.get_word_representation(phones)
+            print '---'
             for name, rules in self.grammar.rules:
                 updated = False
                 for rule in rules:
@@ -219,6 +220,7 @@ class Executor():
                 else:
                     print rule.rule_name, " |  ", "-"
                 phones = self.syllabify(phones)
+            print '---'
             print "SR".ljust(lens), " |  ", self.get_word_representation(phones)
             print '\n---\n'
             
@@ -355,7 +357,8 @@ class Rule(object):
 
         self.seg_match_str = rule_list[0]
         self.seg_change_str = rule_list[1]
-        self.syll_aware = SYLL in self.rule_str
+        self.pre_syll_aware = SYLL in rule_list[2]
+        self.post_syll_aware = SYLL in rule_list[3]
 
     def count_syll_offsets(self, env, pre):
         acc = 0

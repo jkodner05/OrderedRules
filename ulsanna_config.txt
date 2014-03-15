@@ -22,7 +22,7 @@ wordbreak: break
 
 !PHONEMES
 a: -cons +son +syll -hi +low -tns -rnd -back -fro +cont +voi -nas -break
-e: -cons +son +syll -hi -low +tns -rnd -back +fro +cont +voi -nas -break
+ė: -cons +son +syll -hi -low +tns -rnd -back +fro +cont +voi -nas -break
 i: -cons +son +syll +hi -low +tns -rnd -back +fro +cont +voi -nas -break
 u: -cons +son +syll +hi -low +tns +rnd +back -fro +cont +voi -nas -break
 p: +cons -son -syll +LAB -COR -DOR -cont -voi -nas -break
@@ -32,21 +32,21 @@ q: +cons -son -syll -LAB -COR +DOR -cont -voi -nas -hi + back -break
 b: +cons -son -syll +LAB -COR -DOR -cont +voi -nas -break
 d: +cons -son -syll -LAB +COR —DOR -cont +voi -nas +ant -break
 g: +cons -son -syll -LAB -COR +DOR -cont +voi -nas +hi + back -break
-χ: +cons -son -syll -LAB -COR +DOR +cont -voi -nas -hi + back -break
+h: +cons -son -syll -LAB -COR +DOR +cont -voi -nas -hi + back -break
 s: +cons -son -syll -LAB +COR —DOR +cont -voi -nas +ant -dr +str -break
-ʃ: +cons -son -syll -LAB +COR +DOR +cont -voi -nas -ant +str -break
+ṡ: +cons -son -syll -LAB +COR +DOR +cont -voi -nas -ant +str -break
 ṣ: +cons -son -syll -LAB +COR —DOR +cont -voi -nas +ant +dr +str -break
 r: +cons +son -syll -LAB +COR —DOR +cont +voi -nas +cont -lat -break
 l: +cons +son -syll -LAB +COR —DOR +cont +voi -nas +cont +lat -break
 m: +cons +son -syll +LAB -COR —DOR -cont +voi +nas +ant -break
 n: +cons +son -syll -LAB +COR —DOR -cont +voi +nas +ant -break
 
-æ: -cons +son +syll -hi +low +tns -rnd -back +fro +cont +voi -nas -break
-ɛ: -cons +son +syll -hi -low -tns -rnd -back +fro +cont +voi -nas -break
-ɪ: -cons +son +syll +hi -low -tns -rnd -back +fro +cont +voi -nas -break
-ʊ: -cons +son +syll +hi -low -tns +rnd +back -fro +cont +voi -nas -break
-ə: -cons +son +syll -hi -low -tns -rnd -back -fro +cont +voi -nas -break
-ɒ: -cons +son +syll -hi +low -tns -rnd +back -fro +cont +voi -nas -break
+ȧ: -cons +son +syll -hi +low +tns -rnd -back -fro +cont +voi -nas -break
+e: -cons +son +syll -hi -low -tns -rnd -back +fro +cont +voi -nas -break
+ị: -cons +son +syll +hi -low -tns -rnd -back +fro +cont +voi -nas -break
+ụ: -cons +son +syll +hi -low -tns +rnd +back -fro +cont +voi -nas -break
+ẹ: -cons +son +syll -hi -low -tns -rnd -back -fro +cont +voi -nas -break
+ạ: -cons +son +syll -hi +low -tns -rnd +back -fro +cont +voi -nas -break
 o: -cons +son +syll -hi -low -tns +rnd +back -fro +cont +voi -nas -break
 
 !ABBREVIATIONS
@@ -62,20 +62,36 @@ CVC
 CVCC#
 
 !RULES
-NASASSIM: N > b / _{p,b}
-NASASSIM: N > d / _{d,t}
-NASASSIM: N > g / _{k,g}
-NASASSIM: N > q / _q
-NASASSIM: N > χ / _χ
-NASASSIM: N > s / _s
-NASASSIM: N > ṣ / _ṣ
-NASASSIM: N > r / _r
-NASASSIM: N > l / _l
-NASASSIM: N > m / _m
-NASASSIM: N > n / _n
-PLACEASSIM: [+cons -son +LAB] > [-voi] / _[-voi +LAB -son]
-PLACEASSIM: [+cons -son +COR] > [-voi] / _[-voi +COR -son]
-PLACEASSIM: [+cons -son +DOR +hi] > [-voi] / _[-voi +DOR +hi -son]
-PLACEASSIM: [+cons -son +LAB] > [+voi] / _[+voi +LAB -son]
-PLACEASSIM: [+cons -son +COR] > [+voi] / _[+voi +COR -son]
-PLACEASSIM: [+cons -son +DOR +hi] > [+voi] / _[+voi +DOR +hi -son]
+U: u > i /C_#
+NAS_ASSM: N > b / _{p,b}
+NAS_ASSM: N > d / _{d,t}
+NAS_ASSM: N > g / _{k,g}
+NAS_ASSM: N > q / _q
+NAS_ASSM: N > h / _h
+NAS_ASSM: N > s / _s
+NAS_ASSM: N > ṣ / _ṣ
+NAS_ASSM: N > ṡ / _ṡ
+NAS_ASSM: N > r / _r
+NAS_ASSM: N > l / _l
+NAS_ASSM: N > m / _m
+NAS__ASSM: N > n / _n
+PLACE_ASSM: [+cons -son +LAB] > [-voi] / _[-voi +LAB -son]
+PLACE_ASSM: [+cons -son +COR] > [-voi] / _[-voi +COR -son]
+PLACE_ASSM: [+cons -son +DOR +hi] > [-voi] / _[-voi +DOR +hi -son]
+PLACE_ASSM: [+cons -son +LAB] > [+voi] / _[+voi +LAB -son]
+PLACE_ASSM: [+cons -son +COR] > [+voi] / _[+voi +COR -son]
+PLACE_ASSM: [+cons -son +DOR +hi] > [+voi] / _[+voi +DOR +hi -son]
+TENSE_STRESS: V > [+tns] / _C#
+TENSE_STRESS: V > [+tns] / _CC#
+TENSE_STRESS: V > [+tns] / #C_
+TENSE_STRESS: V > [+tns] / #_
+TENSE_STRESS: V > [+tns] / _
+TENSE_STRESS: V > [+tns] / _
+LAX: V > [-tns] / {C,V}σ_#
+LAX: V > [-tns] / {C,V}σC_#
+LAX: V > [-tns] / {C,V}σ_σ{C,V}
+LAX: V > [-tns] / {C,V}σC_σ{C,V}
+LAX: V > [-tns] / {C,V}σ_Cσ{C,V}
+LAX: V > [-tns] / {C,V}σC_Cσ{C,V}
+SCHWA: V > ẹ / {C,V}σ_Cσ{C,V}
+SCHWA: V > ẹ / {C,V}σC_Cσ{C,V}
