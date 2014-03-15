@@ -9,6 +9,8 @@ FALSE = 0
 UNDEF = 2
 
 NULL = "∅"
+SYLL = "σ"
+
 
 PADDING = 2
 
@@ -202,7 +204,7 @@ class Executor():
         for URstr in URstrs:
 #            print URstr
             phones = grammar.syllabify(grammar.getUR(URstr))
-            print grammar.get_word_representation(phones), "\tUR"
+            print "UR".ljust(len(grammar.grammar.rules[0].rule_str)), " |  ", grammar.get_word_representation(phones)
             for rule in grammar.grammar.rules:
  #               print rule.rule_str
                 old_phones = grammar.get_word_representation(phones)
@@ -215,7 +217,7 @@ class Executor():
                 phones = grammar.syllabify(phones)
 #                print ''.join([str(phone.syll) for phone in phones if phone.syll >= 0])
 #                print rule[0].rule_str, " |  ", grammar.get_word_representation(phones)
-            print "SR".ljust((rules[0])-2), grammar.get_word_representation(phones)
+            print "SR".ljust(len(grammar.grammar.rules[0].rule_str)), " |  ", grammar.get_word_representation(phones)
             print '\n---\n'
             
                     
@@ -324,15 +326,15 @@ class Rule(object):
 #        print "\tpost   env:", self.post_env
 #        print ""
         print self.seg_match
-        self.seg_match = map(lambda y: [self.get_seg_feats(char) for char in y],filter(lambda x: x != ['σ'], self.seg_match))[0]
+        self.seg_match = map(lambda y: [self.get_seg_feats(char) for char in y],filter(lambda x: x != [SYLL], self.seg_match))[0]
         if self.pre_env:
             self.pre_env_sylls = self.count_syll_offsets(self.pre_env, pre=True)
-            self.pre_env = map(lambda y: [self.get_seg_feats(char) for char in y],filter(lambda x: x != ['σ'], self.pre_env))
+            self.pre_env = map(lambda y: [self.get_seg_feats(char) for char in y],filter(lambda x: x != [SYLL], self.pre_env))
         else:
             self.pre_env_sylls = None
         if self.post_env:
             self.post_env_sylls = self.count_syll_offsets(self.post_env, pre=False)
-            self.post_env = map(lambda y: [self.get_seg_feats(char) for char in y],filter(lambda x: x != ['σ'], self.post_env))
+            self.post_env = map(lambda y: [self.get_seg_feats(char) for char in y],filter(lambda x: x != [SYLL], self.post_env))
         else:
             self.post_env_sylls = None
 
@@ -346,7 +348,7 @@ class Rule(object):
 
         self.seg_match_str = rule_list[0]
         self.seg_change_str = rule_list[1]
-        self.syll_aware = 'σ'.decode("utf-8") in rule_str
+        self.syll_aware = SYLL.decode("utf-8") in rule_str
 
     def count_syll_offsets(self, env, pre):
         acc = 0
