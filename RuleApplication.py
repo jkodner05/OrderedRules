@@ -74,8 +74,7 @@ class Executor():
         for i,feats in enumerate(segments):
             match = False
             for seg in segments[i]:
-                print seg
-                if match_features(potential[i], seg) and (not syll_aware or (potential_sylls[i] < 0 and (not offsets)) or (offsets and offsets[i] + sylls[piv_index] == potential_sylls[i])):
+                if match_features(potential[i], seg) and (not syll_aware or (potential_sylls[i] < 0 and (not offsets or seg['break'] == TRUE)) or (offsets and offsets[i] + sylls[piv_index] == potential_sylls[i])):
                     match = True
             if not match:
                 return False
