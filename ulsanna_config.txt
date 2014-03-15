@@ -47,7 +47,8 @@ e: -cons +son +syll -hi -low -tns -rnd -back +fro +cont +voi -nas -break
 ụ: -cons +son +syll +hi -low -tns +rnd +back -fro +cont +voi -nas -break
 ẹ: -cons +son +syll -hi -low -tns -rnd -back -fro +cont +voi -nas -break
 ạ: -cons +son +syll -hi +low -tns -rnd +back -fro +cont +voi -nas -break
-o: -cons +son +syll -hi -low -tns +rnd +back -fro +cont +voi -nas -break
+o: -cons +son +syll -hi -low +tns +rnd +back -fro +cont +voi -nas -break
+ọ: -cons +son +syll -hi -low -tns +rnd +back -fro +cont +voi -nas -break
 
 !ABBREVIATIONS
 V: +syll -break
@@ -62,7 +63,6 @@ CVC
 CVCC#
 
 !RULES
-U: u > i /C_#
 NAS_ASSM: N > b / _{p,b}
 NAS_ASSM: N > d / _{d,t}
 NAS_ASSM: N > g / _{k,g}
@@ -74,24 +74,36 @@ NAS_ASSM: N > ṡ / _ṡ
 NAS_ASSM: N > r / _r
 NAS_ASSM: N > l / _l
 NAS_ASSM: N > m / _m
-NAS__ASSM: N > n / _n
+NAS_ASSM: N > n / _n
 PLACE_ASSM: [+cons -son +LAB] > [-voi] / _[-voi +LAB -son]
 PLACE_ASSM: [+cons -son +COR] > [-voi] / _[-voi +COR -son]
 PLACE_ASSM: [+cons -son +DOR +hi] > [-voi] / _[-voi +DOR +hi -son]
 PLACE_ASSM: [+cons -son +LAB] > [+voi] / _[+voi +LAB -son]
 PLACE_ASSM: [+cons -son +COR] > [+voi] / _[+voi +COR -son]
 PLACE_ASSM: [+cons -son +DOR +hi] > [+voi] / _[+voi +DOR +hi -son]
-TENSE_STRESS: V > [+tns] / _C#
-TENSE_STRESS: V > [+tns] / _CC#
-TENSE_STRESS: V > [+tns] / #C_
-TENSE_STRESS: V > [+tns] / #_
-TENSE_STRESS: V > [+tns] / _
-TENSE_STRESS: V > [+tns] / _
+LAX: V > [-tns]
 LAX: V > [-tns] / {C,V}σ_#
 LAX: V > [-tns] / {C,V}σC_#
 LAX: V > [-tns] / {C,V}σ_σ{C,V}
 LAX: V > [-tns] / {C,V}σC_σ{C,V}
 LAX: V > [-tns] / {C,V}σ_Cσ{C,V}
 LAX: V > [-tns] / {C,V}σC_Cσ{C,V}
-SCHWA: V > ẹ / {C,V}σ_Cσ{C,V}
-SCHWA: V > ẹ / {C,V}σC_Cσ{C,V}
+TENSE_STRESS: V > [+tns] / _C#
+TENSE_STRESS: V > [+tns] / _CC#
+TENSE_STRESS: V > [+tns] / #C_CVCV
+TENSE_STRESS: V > [+tns] / #C_CCVCV
+TENSE_STRESS: V > [+tns] / #C_CVCCV
+TENSE_STRESS: V > [+tns] / #C_CCVCCV
+TENSE_STRESS: V > [+tns] / #_CVCV
+TENSE_STRESS: V > [+tns] / #_CCVCV
+TENSE_STRESS: V > [+tns] / #_CVCCV
+TENSE_STRESS: V > [+tns] / #_CCVCCV
+TENSE_STRESS: V > [+tns] / _CV#
+TENSE_STRESS: V > [+tns] / _CCV#
+SCHWA: a > ẹ / _#
+SCHWA: [-tns] > ẹ / {C,V}σ_Cσ{C,V}
+SCHWA: [-tns] > ẹ / {C,V}σC_Cσ{C,V}
+UVULAR: [-cons +low] > ạ / _[+DOR -hi]
+UVULAR: [-cons +hi] > [-hi] / _[+DOR -hi]
+UVULAR: [-cons +low] > ạ / [+DOR -hi]_
+UVULAR: [-cons +hi] > [-hi] / [+DOR -hi]_

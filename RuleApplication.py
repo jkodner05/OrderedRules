@@ -204,11 +204,15 @@ class Executor():
         with open(filename, "r") as inputfile:
             URstrs = inputfile.read().split("\n")
 #            URstrs = [line.strip() for line in inputfile]
+        for name, rules in self.grammar.rules:
+            print name.strip() + ":"
+            for rule in rules:
+                print "\t", rule.rule_str
+        print '\n---\n---\n'
         for URstr in URstrs:
             phones = self.syllabify(self.getUR(URstr.strip()))
             lens = len(self.grammar.rules[0][0])
             print "UR".ljust(lens), " |  ", self.get_word_representation(phones)
-            print '---'
             for name, rules in self.grammar.rules:
                 updated = False
                 for rule in rules:
@@ -220,7 +224,6 @@ class Executor():
                 else:
                     print rule.rule_name, " |  ", "-"
                 phones = self.syllabify(phones)
-            print '---'
             print "SR".ljust(lens), " |  ", self.get_word_representation(phones)
             print '\n---\n'
             
@@ -339,13 +342,17 @@ class Rule(object):
         if self.pre_env:
             self.pre_env_sylls = self.count_syll_offsets(self.pre_env, pre=True)
             self.pre_env = map(lambda y: [self.get_seg_feats(char) for char in y],filter(lambda x: x != [SYLL], self.pre_env))
+            self.pre_syll_aware = SYLL in rule_list[2]
         else:
             self.pre_env_sylls = None
+            self.pre_syll_aware = False
         if self.post_env:
             self.post_env_sylls = self.count_syll_offsets(self.post_env, pre=False)
             self.post_env = map(lambda y: [self.get_seg_feats(char) for char in y],filter(lambda x: x != [SYLL], self.post_env))
+            self.post_syll_aware = SYLL in rule_list[3]
         else:
             self.post_env_sylls = None
+            self.post_syll_aware = False
 
 #        print "\tseg   match:", self.seg_match
 #        print "\tseg  change:", self.seg_change
@@ -357,8 +364,6 @@ class Rule(object):
 
         self.seg_match_str = rule_list[0]
         self.seg_change_str = rule_list[1]
-        self.pre_syll_aware = SYLL in rule_list[2]
-        self.post_syll_aware = SYLL in rule_list[3]
 
     def count_syll_offsets(self, env, pre):
         acc = 0
