@@ -35,7 +35,7 @@ g: +cons -son -syll -LAB -COR +DOR -cont +voi -nas +hi + back -break
 χ: +cons -son -syll -LAB -COR +DOR +cont -voi -nas -hi + back -break
 s: +cons -son -syll -LAB +COR —DOR +cont -voi -nas +ant -dr +str -break
 ʃ: +cons -son -syll -LAB +COR +DOR +cont -voi -nas -ant +str -break
-t͡s ^: +cons -son -syll -LAB +COR —DOR +cont -voi -nas +ant +dr +str -break
+ṣ: +cons -son -syll -LAB +COR —DOR +cont -voi -nas +ant +dr +str -break
 r: +cons +son -syll -LAB +COR —DOR +cont +voi -nas +cont -lat -break
 l: +cons +son -syll -LAB +COR —DOR +cont +voi -nas +cont +lat -break
 m: +cons +son -syll +LAB -COR —DOR -cont +voi +nas +ant -break
@@ -62,16 +62,20 @@ CVC
 CVCC#
 
 !RULES
-N > [-nas -son] / C_V
-{a,i} > e
-e > æ / #_
-V > ∅ / eC_NV
-e > [-tns] / _N
-∅ > ə / n_n
-ɛ > u / {r,n}{d,n}_
-u > o / V[+nas]_
-a > b / {a, [-tns +hi]} CC [+cons]_
-N > [-nas] / _C
-e > ʊ / _CσC
-ʊ > u / _σCC
-V > i / _CCσ
+NASASSIM: N > b / _{p,b}
+NASASSIM: N > d / _{d,t}
+NASASSIM: N > g / _{k,g}
+NASASSIM: N > q / _q
+NASASSIM: N > χ / _χ
+NASASSIM: N > s / _s
+NASASSIM: N > ṣ / _ṣ
+NASASSIM: N > r / _r
+NASASSIM: N > l / _l
+NASASSIM: N > m / _m
+NASASSIM: N > n / _n
+PLACEASSIM: [+cons -son +LAB] > [-voi] / _[-voi +LAB -son]
+PLACEASSIM: [+cons -son +COR] > [-voi] / _[-voi +COR -son]
+PLACEASSIM: [+cons -son +DOR +hi] > [-voi] / _[-voi +DOR +hi -son]
+PLACEASSIM: [+cons -son +LAB] > [+voi] / _[+voi +LAB -son]
+PLACEASSIM: [+cons -son +COR] > [+voi] / _[+voi +COR -son]
+PLACEASSIM: [+cons -son +DOR +hi] > [+voi] / _[+voi +DOR +hi -son]

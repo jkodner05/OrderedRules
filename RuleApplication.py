@@ -5,6 +5,7 @@ import codecs
 from copy import copy
 import re
 from collections import OrderedDict
+from itertools import groupby
 import sys
 
 TRUE = 1
@@ -164,9 +165,11 @@ class Executor():
         no deletions or insertions
         not all expressions of environments are permissible yet
         no syllable-aware rule environments"""
+        changed = False
         for i, phone in enumerate(word):
             if self.match_rule_seg(rule,phone):
                 if self.match_env(rule,word,i):
+                    changed = True
                     self.change_features(rule,phone)
         #filter out segments meant for deletion
         word =  filter(lambda x: x.to_delete == False, word)
@@ -175,7 +178,7 @@ class Executor():
             if phone.add_here:
                 phone.add_here = False
                 word.insert(i+1, self.getPhoneUR(rule.seg_change_str.strip()))
-        return word
+        return word, changed
 
     def get_char_representation(self, seg):
         """Determine character representation of phone"""
@@ -203,17 +206,20 @@ class Executor():
 #            URstrs = [line.strip() for line in inputfile]
         for URstr in URstrs:
             phones = self.syllabify(self.getUR(URstr))
-            print "UR".ljust(len(self.grammar.rules[0].rule_str)), " |  ", self.get_word_representation(phones)
-            for rule in self.grammar.rules:
-                old_phones = self.get_word_representation(phones)
-                phones = self.apply_rule(rule,phones)
+            lens = len(self.grammar.rules[0][0])
+            print "UR".ljust(lens), " |  ", self.get_word_representation(phones)
+            for name, rules in self.grammar.rules:
+                updated = False
+                for rule in rules:
+                    phones, updated_this_time = self.apply_rule(rule,phones)
+                    updated = updated or updated_this_time
                 new_phones = self.get_word_representation(phones)
-                if old_phones != new_phones:
-                    print rule.rule_str, " |  ", new_phones
+                if updated:
+                    print rule.rule_name, " |  ", new_phones
                 else:
-                    print rule.rule_str, " |  ", "-"
+                    print rule.rule_name, " |  ", "-"
                 phones = self.syllabify(phones)
-            print "SR".ljust(len(self.grammar.rules[0].rule_str)), " |  ", self.get_word_representation(phones)
+            print "SR".ljust(lens), " |  ", self.get_word_representation(phones)
             print '\n---\n'
             
                     
@@ -283,12 +289,16 @@ class GlobalGrammar():
         A, C, D may be phones, abbreviations, or sets of features
         B may be a phone or set of features"""
 
-        rulestrs = [line.strip() for line in 
+        rulestrs = [line.strip().split(":") for line in 
                 filter(lambda x:
                            x and "RULE" not in x, rule_sec.split("\n"))]
-        max_len = len(max(rulestrs, key=lambda x: len(x)))
-        rulestrs = [rule.ljust(max_len) for rule in rulestrs]
-        return [Rule(rule,self.features,self.phones) for rule in rulestrs]
+        max_len = len(max(rulestrs, key=lambda x: len(x[0].strip()))[0].strip())
+        rulestrs = [rule[0].strip().ljust(max_len)+":"+rule[1] for rule in rulestrs]
+        rule_list = [Rule(rule,self.features,self.phones) for rule in rulestrs]
+        
+        #group rules by name
+        return [(key, set(group)) for key, group in groupby(rule_list, lambda x: x.rule_name)]
+
 
 
 
@@ -296,11 +306,13 @@ class Rule(object):
     """Representation of ordered rule"""
 
     def __init__(self, rule_str, features, abbrevs):
-        self.rule_str = rule_str
+        self.raw_rule = rule_str
+        self.rule_name = self.raw_rule.split(":")[0]
+        self.rule_str = self.raw_rule.split(":")[1].strip()
 #        print rule_str
         self.features = features
         self.abbrevs = abbrevs
-        rule_list = re.split('[/>_]',rule_str)
+        rule_list = re.split('[/>_]',self.rule_str)
 #        self.seg_match = [self.get_seg_feats(match) for match in self.divide_segs(rule_list[0].strip())][0] # A
         self.seg_match = self.divide_segs(rule_list[0].strip()) #A
 #        print "sm\t", self.seg_match
@@ -343,7 +355,7 @@ class Rule(object):
 
         self.seg_match_str = rule_list[0]
         self.seg_change_str = rule_list[1]
-        self.syll_aware = SYLL in rule_str
+        self.syll_aware = SYLL in self.rule_str
 
     def count_syll_offsets(self, env, pre):
         acc = 0
