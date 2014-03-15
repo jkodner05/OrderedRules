@@ -9,7 +9,7 @@ FALSE = 0
 UNDEF = 2
 
 NULL = "∅"
-SYLL = "σ"
+SYLL = "σ".decode("utf-8")
 
 
 PADDING = 2
@@ -70,11 +70,8 @@ class Executor():
         for i,feats in enumerate(segments):
             match = False
             for seg in segments[i]:
-                if match_features(potential[i], seg) #regardless of awareness
-                and (not syll_aware or (potential_sylls[i] < 0 and not offsets) #if we're syllabifying
-                     or (offsets and offsets[i] + sylls[piv_index] == potential_sylls[i])): #if we're matching rule environments
+                if match_features(potential[i], seg) and (not syll_aware or (potential_sylls[i] < 0 and not offsets) or (offsets and offsets[i] + sylls[piv_index] == potential_sylls[i])):
                     match = True
-            print syll_aware, match
             if not match:
                 return False
         return True
@@ -141,9 +138,7 @@ class Executor():
         """determine if this phone matches the rule"""
         if [None] in rule.seg_match:
             return True
-#        print rule.seg_match_str
         for option in rule.seg_match:
-#            print "\t",rule.seg_match_str, option
             if match_features(seg.features,option):
                     return True
         return False
@@ -202,14 +197,11 @@ class Executor():
     def apply_to_inputs(self, filename):
         with open(filename, "r") as inputfile:
             URstrs = inputfile.read().split("\n")
-            print URstrs
 #            URstrs = [line.strip() for line in inputfile]
         for URstr in URstrs:
-#            print URstr
             phones = grammar.syllabify(grammar.getUR(URstr))
             print "UR".ljust(len(grammar.grammar.rules[0].rule_str)), " |  ", grammar.get_word_representation(phones)
             for rule in grammar.grammar.rules:
- #               print rule.rule_str
                 old_phones = grammar.get_word_representation(phones)
                 phones = grammar.apply_rule(rule,phones)
                 new_phones = grammar.get_word_representation(phones)
@@ -218,8 +210,6 @@ class Executor():
                 else:
                     print rule.rule_str, " |  ", "-"
                 phones = grammar.syllabify(phones)
-#                print ''.join([str(phone.syll) for phone in phones if phone.syll >= 0])
-#                print rule[0].rule_str, " |  ", grammar.get_word_representation(phones)
             print "SR".ljust(len(grammar.grammar.rules[0].rule_str)), " |  ", grammar.get_word_representation(phones)
             print '\n---\n'
             
@@ -246,7 +236,6 @@ class GlobalGrammar():
         self.phone_char_mappings = self.map_phone_chars(sec_filter(full, "PHONEME"), sec_filter(full, "ABBREV"))
         self.syllables = self.read_syllables(sec_filter(full, "SYLL"))
         self.rules = self.parse_rules(sec_filter(full, "RULE"))
-        print self.phones
         return full
 
     def read_features(self, feature_sec):
@@ -328,7 +317,7 @@ class Rule(object):
 
 #        print "\tpost   env:", self.post_env
 #        print ""
-        print self.seg_match
+#        print self.seg_match
         self.seg_match = map(lambda y: [self.get_seg_feats(char) for char in y],filter(lambda x: x != [SYLL], self.seg_match))[0]
         if self.pre_env:
             self.pre_env_sylls = self.count_syll_offsets(self.pre_env, pre=True)
@@ -351,7 +340,7 @@ class Rule(object):
 
         self.seg_match_str = rule_list[0]
         self.seg_change_str = rule_list[1]
-        self.syll_aware = SYLL.decode("utf-8") in rule_str
+        self.syll_aware = SYLL in rule_str
 
     def count_syll_offsets(self, env, pre):
         acc = 0
@@ -363,7 +352,7 @@ class Rule(object):
             inc = lambda a : a+1
         for seg in env:
 #            print "abc", seg
-            if seg == ['σ']:
+            if seg == [SYLL]:
                 acc = inc(acc)
 #                print "acc",acc
             else:
@@ -402,9 +391,6 @@ class Rule(object):
         return flatten(map(split_options, split_sets(segs)))
 
     def get_seg_feats(self, match_str):
-        print NULL, match_str
-        print NULL.decode("utf-8"), match_str
-        print match_str.encode("utf-8")
         if NULL in match_str.encode("utf-8"):
             return [None]
         elif match_str not in self.abbrevs:

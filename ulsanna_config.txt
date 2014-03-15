@@ -62,11 +62,11 @@ CVC
 CVCC#
 
 !RULES
-N > [-nas -son] / C_V
-{a,i} > e
-e > æ / #_
-V > ∅ / eC_NV
-e > [-tns] / _N
+ABC: N > [-nas -son] / C_V
+D: {a,i} > e
+WHAT: e > æ / #_
+RULE: V > ∅ / eC_NV
+HELLO: e > [-tns] / _N
 ∅ > ə / n_n
 ɛ > u / {r,n}{d,n}_
 u > o / V[+nas]_
