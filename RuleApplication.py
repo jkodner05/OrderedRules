@@ -3,6 +3,7 @@ import codecs
 from copy import copy
 import re
 from collections import OrderedDict
+import sys
 
 TRUE = 1
 FALSE = 0
@@ -95,7 +96,7 @@ class Executor():
         for nucleus in nuclei:
             matched = ''
             for onset in self.grammar.syllables["onsets"]:
-                if self.segs_match([[grammar.grammar.phones[phone]] for phone in onset],sylls,nucleus,word,True,True):
+                if self.segs_match([[self.grammar.phones[phone]] for phone in onset],sylls,nucleus,word,True,True):
                     if self.clean_len(onset) > self.clean_len(matched):
                         matched = onset
             for i in range(nucleus-self.clean_len(matched),nucleus):
@@ -104,7 +105,7 @@ class Executor():
         for nucleus in nuclei:
             matched = ''
             for coda in self.grammar.syllables["codas"]:
-                if self.segs_match([[grammar.grammar.phones[phone]] for phone in coda],sylls,nucleus,word,True,False):
+                if self.segs_match([[self.grammar.phones[phone]] for phone in coda],sylls,nucleus,word,True,False):
                     if self.clean_len(coda) > self.clean_len(matched):
                         matched = coda
             for i in range(nucleus+1,nucleus+self.clean_len(matched)+1):
@@ -199,18 +200,18 @@ class Executor():
             URstrs = inputfile.read().split("\n")
 #            URstrs = [line.strip() for line in inputfile]
         for URstr in URstrs:
-            phones = grammar.syllabify(grammar.getUR(URstr))
-            print "UR".ljust(len(grammar.grammar.rules[0].rule_str)), " |  ", grammar.get_word_representation(phones)
-            for rule in grammar.grammar.rules:
-                old_phones = grammar.get_word_representation(phones)
-                phones = grammar.apply_rule(rule,phones)
-                new_phones = grammar.get_word_representation(phones)
+            phones = self.syllabify(self.getUR(URstr))
+            print "UR".ljust(len(self.grammar.rules[0].rule_str)), " |  ", self.get_word_representation(phones)
+            for rule in self.grammar.rules:
+                old_phones = self.get_word_representation(phones)
+                phones = self.apply_rule(rule,phones)
+                new_phones = self.get_word_representation(phones)
                 if old_phones != new_phones:
                     print rule.rule_str, " |  ", new_phones
                 else:
                     print rule.rule_str, " |  ", "-"
-                phones = grammar.syllabify(phones)
-            print "SR".ljust(len(grammar.grammar.rules[0].rule_str)), " |  ", grammar.get_word_representation(phones)
+                phones = self.syllabify(phones)
+            print "SR".ljust(len(self.grammar.rules[0].rule_str)), " |  ", self.get_word_representation(phones)
             print '\n---\n'
             
                     
@@ -426,10 +427,10 @@ class Phone(object):
         return title
 
 
-grammar = Executor(GlobalGrammar(u'ulsanna_config.txt'))
-test_phones = [grammar.getUR(u'arnernaninurint')]
-#phones = grammar.getUR(u'arnernaninuri')   
+def main(args):
+    grammar = Executor(GlobalGrammar(args[0]))
+    grammar.apply_to_inputs(args[1])
 
-grammar.apply_to_inputs("inputs.txt")
-#for phone in phones:
-#    print phone.name, phone.features
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
