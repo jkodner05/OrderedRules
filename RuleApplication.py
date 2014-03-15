@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+#!/usr/bin/python
 import codecs
 from copy import copy
 import re
