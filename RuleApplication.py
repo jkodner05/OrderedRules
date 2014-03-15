@@ -215,7 +215,7 @@ class Executor():
                 phones = grammar.syllabify(phones)
 #                print ''.join([str(phone.syll) for phone in phones if phone.syll >= 0])
 #                print rule[0].rule_str, " |  ", grammar.get_word_representation(phones)
-            print grammar.get_word_representation(phones), "\tSR"
+            print "SR".ljust((rules[0])-2), grammar.get_word_representation(phones)
             print '\n---\n'
             
                     
