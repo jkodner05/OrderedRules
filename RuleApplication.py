@@ -202,13 +202,20 @@ class Executor():
         for URstr in URstrs:
 #            print URstr
             phones = grammar.syllabify(grammar.getUR(URstr))
+            print grammar.get_word_representation(phones), "\tUR"
             for rule in grammar.grammar.rules:
-                print rule.rule_str
-                print grammar.get_word_representation(phones)
+ #               print rule.rule_str
+                old_phones = grammar.get_word_representation(phones)
                 phones = grammar.apply_rule(rule,phones)
-                print grammar.get_word_representation(phones)
+                new_phones = grammar.get_word_representation(phones)
+                if old_phones != new_phones:
+                    print rule.rule_str, " |  ", new_phones
+                else:
+                    print rule.rule_str, " |  ", "-"
                 phones = grammar.syllabify(phones)
-                print ''.join([str(phone.syll) for phone in phones if phone.syll >= 0])
+#                print ''.join([str(phone.syll) for phone in phones if phone.syll >= 0])
+#                print rule[0].rule_str, " |  ", grammar.get_word_representation(phones)
+            print grammar.get_word_representation(phones), "\tSR"
             print '\n---\n'
             
                     
@@ -279,10 +286,13 @@ class GlobalGrammar():
         A, C, D may be phones, abbreviations, or sets of features
         B may be a phone or set of features"""
 
-        rules = [line.strip() for line in 
+        rulestrs = [line.strip() for line in 
                 filter(lambda x:
                            x and "RULE" not in x, rule_sec.split("\n"))]
-        return [Rule(rule,self.features,self.phones) for rule in rules]
+        max_len = len(max(rulestrs, key=lambda x: len(x)))
+        rulestrs = [rule.ljust(max_len) for rule in rulestrs]
+        return [Rule(rule,self.features,self.phones) for rule in rulestrs]
+
 
 
 class Rule(object):
