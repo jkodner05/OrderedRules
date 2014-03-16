@@ -68,9 +68,8 @@ CVCC#
 STRESS_SCHWA: V > [-str]
 STRESS_SCHWA: V > [+str] / #_  
 STRESS_SCHWA: V > [+str] / #C_ 
-STRESS_SCHWA2: V > [+str] / [-str]_
-STRESS_SCHWA2: V > [+str] / [-str]C_
-STRESS_SCHWA3: [+syll -str +low] > e
+STRESS_SCHWA: V > [+str] / {C,[-str]}{[-str],C}_
+STRESS_SCHWA: [+syll -str +low] > e
 SCHWA_DEL: e > ∅ /[+cons]_#
 SCHWA_DEL: e > ∅ / p_p
 SCHWA_DEL: e > ∅ / t_t
@@ -78,17 +77,24 @@ SCHWA_DEL: e > ∅ / k_k
 SCHWA_DEL: e > ∅ / s_s
 SCHWA_DEL: e > ∅ / r_r
 SCHWA_DEL: e > ∅ / n_n
-PALATIZE_F: [+COR -son] > [-ant +DOR] / _i
-PALATIZE_S: [+COR -cont -son] > [-DOR +dr + str] / _i
+PALATIZE: [+COR -son] > [-ant +DOR] / _i
+PALATIZE: [+COR -cont -son] > [-DOR +dr + str] / _i
 FRONT: [-cons +back] > [-back +front] / i_
+CONSUME: i > ∅ / [-ant]_V
+CONSUME: i > ∅ / [-ant]_#
 DIPHTH: [+syll +hi] > [-syll] / _V
-CONSUME: y > ∅ / C_V
+DIPHTH: [+syll +hi] > [-syll] / V_
+LONG: e > a / a_
 NAS_ASSM: n > m / [+LAB]V_
 NAS_ASSM: n > ṅ / [+DOR -COR]V_
+APPROX_ASSIM: r > ṙ / [+DOR -COR]V_
+APPROX_ASSIM: r > v / [+LAB]V_
 GEM_ASSM: n > ṅ / ṅ_
 GEM_ASSM: n > m / m_
 GEM_ASSM: s > ṡ / _ṡ
-GEM_ASSM: s > ṡ / _ċ
+GEM_ASSM: t > ċ / _ċ
+GEM_ASSM: r > ṙ / _ṙ
+GEM_ASSM: r > v / _v
 A_ASSM: a > ä / [+DOR -COR]_
 A_ASSM: a > o / [+LAB]_
-VOICE: C > [+voi] / V_V
+VOICE: C > [+voi] / [-cons]_[-cons]
