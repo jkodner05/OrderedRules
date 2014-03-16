@@ -22,12 +22,12 @@ wordbreak: break
 
 !PHONEMES
 a: -cons +son +syll -hi +low -tns -rnd -back -fro +cont +voi -nas -break
-ä: -cons +son +syll -hi -low -tns -rnd -back +fro +cont +voi -nas -break
+ɛ: -cons +son +syll -hi -low -tns -rnd -back +fro +cont +voi -nas -break
 i: -cons +son +syll +hi -low +tns -rnd -back +fro +cont +voi -nas -break
-o: -cons +son +syll -hi -low -tns +rnd +back -fro +cont +voi -nas -break
+ɔ: -cons +son +syll -hi -low -tns +rnd +back -fro +cont +voi -nas -break
 u: -cons +son +syll +hi -low +tns +rnd +back -fro +cont +voi -nas -break
-ü: -cons +son +syll +hi -low +tns +rnd -back +fro +cont +voi -nas -break
-e: -cons +son +syll -hi -low -tns -rnd -back -fro +cont +voi -nas -break
+y: -cons +son +syll +hi -low +tns +rnd -back +fro +cont +voi -nas -break
+ə: -cons +son +syll -hi -low -tns -rnd -back -fro +cont +voi -nas -break
 
 p: +cons -son -syll +LAB -COR -DOR -cont -voi -nas -break
 t: +cons -son -syll -LAB +COR —DOR -cont -voi -nas +ant -break
@@ -37,19 +37,19 @@ r: +cons +son -syll -LAB +COR —DOR +cont +voi -nas +cont -lat -break
 n: +cons +son -syll -LAB +COR —DOR -cont +voi +nas +ant -break
 
 m: +cons +son -syll +LAB -COR —DOR -cont +voi +nas +ant -break
-ṅ: +cons +son -syll -LAB -COR +DOR -cont +voi +nas +ant -break
-ṡ: +cons -son -syll -LAB +COR +DOR +cont -voi -nas -ant +str -break
-ż: +cons -son -syll -LAB +COR +DOR +cont +voi -nas -ant +str -break
+ŋ: +cons +son -syll -LAB -COR +DOR -cont +voi +nas +ant -break
+ʃ: +cons -son -syll -LAB +COR +DOR +cont -voi -nas -ant +str -break
+ʒ: +cons -son -syll -LAB +COR +DOR +cont +voi -nas -ant +str -break
 ċ: +cons -son -syll -LAB +COR —DOR +cont -voi -nas -ant +dr +str -break
 ġ: +cons -son -syll -LAB +COR —DOR +cont +voi -nas -ant +dr +str -break
-ṙ: +cons -son -syll -LAB -COR +DOR +cont +voi -nas +hi + back -break
+ɣ: +cons -son -syll -LAB -COR +DOR +cont +voi -nas +hi + back -break
 v: +cons -son -syll +LAB -COR -DOR +cont +voi -nas -break
 b: +cons -son -syll +LAB -COR -DOR -cont +voi -nas -break
 d: +cons -son -syll -LAB +COR —DOR -cont +voi -nas +ant -break
 g: +cons -son -syll -LAB -COR +DOR -cont +voi -nas +hi + back -break
 z: +cons -son -syll -LAB +COR —DOR +cont +voi -nas +ant -dr +str -break
 w: -cons +son -syll +hi -low +tns +rnd +back -fro +cont +voi -nas -break
-y: -cons +son -syll +hi -low +tns -rnd -back +fro +cont +voi -nas -break
+j: -cons +son -syll +hi -low +tns -rnd -back +fro +cont +voi -nas -break
 
 
 !ABBREVIATIONS
@@ -69,14 +69,14 @@ STRESS_SCHWA: V > [-str]
 STRESS_SCHWA: V > [+str] / #_  
 STRESS_SCHWA: V > [+str] / #C_ 
 STRESS_SCHWA: V > [+str] / {C,[-str]}{[-str],C}_
-STRESS_SCHWA: [+syll -str +low] > e
-SCHWA_DEL: e > ∅ /[+cons]_#
-SCHWA_DEL: e > ∅ / p_p
-SCHWA_DEL: e > ∅ / t_t
-SCHWA_DEL: e > ∅ / k_k
-SCHWA_DEL: e > ∅ / s_s
-SCHWA_DEL: e > ∅ / r_r
-SCHWA_DEL: e > ∅ / n_n
+STRESS_SCHWA: [+syll -str +low] > ə
+SCHWA_DEL: ə > ∅ /[+cons]_#
+SCHWA_DEL: ə > ∅ / p_p
+SCHWA_DEL: ə > ∅ / t_t
+SCHWA_DEL: ə > ∅ / k_k
+SCHWA_DEL: ə > ∅ / s_s
+SCHWA_DEL: ə > ∅ / r_r
+SCHWA_DEL: ə > ∅ / n_n
 PALATIZE: [+COR -son] > [-ant +DOR] / _i
 PALATIZE: [+COR -cont -son] > [-DOR +dr + str] / _i
 FRONT: [-cons +back] > [-back +front] / i_
@@ -84,17 +84,17 @@ CONSUME: i > ∅ / [-ant]_V
 CONSUME: i > ∅ / [-ant]_#
 DIPHTH: [+syll +hi] > [-syll] / _V
 DIPHTH: [+syll +hi] > [-syll] / V_
-LONG: e > a / a_
+LONG: ə > a / a_
 NAS_ASSM: n > m / [+LAB]V_
-NAS_ASSM: n > ṅ / [+DOR -COR]V_
-APPROX_ASSIM: r > ṙ / [+DOR -COR]V_
+NAS_ASSM: n > ŋ / [+DOR -COR]V_
+APPROX_ASSIM: r > ɣ / [+DOR -COR]V_
 APPROX_ASSIM: r > v / [+LAB]V_
-GEM_ASSM: n > ṅ / ṅ_
+GEM_ASSM: n > ŋ / ŋ_
 GEM_ASSM: n > m / m_
-GEM_ASSM: s > ṡ / _ṡ
+GEM_ASSM: s > ʃ / _ʃ
 GEM_ASSM: t > ċ / _ċ
-GEM_ASSM: r > ṙ / _ṙ
+GEM_ASSM: r > ɣ / _ɣ
 GEM_ASSM: r > v / _v
-A_ASSM: a > ä / [+DOR -COR]_
-A_ASSM: a > o / [+LAB]_
+A_ASSM: a > ɛ / [+DOR -COR]_
+A_ASSM: a > ɔ / [+LAB]_
 VOICE: C > [+voi] / [-cons]_[-cons]

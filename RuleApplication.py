@@ -214,7 +214,7 @@ class Executor():
         for URstr in URstrs:
             phones = self.syllabify(self.getUR(URstr.strip()))
             lens = len(self.grammar.rules[0][0])
-            print "UR".ljust(lens), " |  ", self.get_word_representation(phones)
+            print "UR".ljust(lens), " |  /"+self.get_word_representation(phones)+"/"
             for name, rules in self.grammar.rules:
                 updated = False
                 for rule in rules:
@@ -226,7 +226,7 @@ class Executor():
                 else:
                     print rule.rule_name, " |  ", "-"
                 phones = self.syllabify(phones)
-            print "SR".ljust(lens), " |  ", self.get_word_representation(phones)
+            print "SR".ljust(lens), " |  ["+self.get_word_representation(phones)+"]"
             print '\n---\n'
             
                     
