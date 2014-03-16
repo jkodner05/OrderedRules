@@ -22,32 +22,35 @@ wordbreak: break
 
 !PHONEMES
 a: -cons +son +syll -hi +low -tns -rnd -back -fro +cont +voi -nas -break
-e: -cons +son +syll -hi -low +tns -rnd -back +fro +cont +voi -nas -break
+ä: -cons +son +syll -hi -low -tns -rnd -back +fro +cont +voi -nas -break
 i: -cons +son +syll +hi -low +tns -rnd -back +fro +cont +voi -nas -break
+o: -cons +son +syll -hi -low -tns +rnd +back -fro +cont +voi -nas -break
 u: -cons +son +syll +hi -low +tns +rnd +back -fro +cont +voi -nas -break
+ü: -cons +son +syll +hi -low +tns +rnd -back +fro +cont +voi -nas -break
+e: -cons +son +syll -hi -low -tns -rnd -back -fro +cont +voi -nas -break
+
 p: +cons -son -syll +LAB -COR -DOR -cont -voi -nas -break
 t: +cons -son -syll -LAB +COR —DOR -cont -voi -nas +ant -break
 k: +cons -son -syll -LAB -COR +DOR -cont -voi -nas +hi + back -break
-q: +cons -son -syll -LAB -COR +DOR -cont -voi -nas -hi + back -break
+s: +cons -son -syll -LAB +COR —DOR +cont -voi -nas +ant -dr +str -break
+r: +cons +son -syll -LAB +COR —DOR +cont +voi -nas +cont -lat -break
+n: +cons +son -syll -LAB +COR —DOR -cont +voi +nas +ant -break
+
+m: +cons +son -syll +LAB -COR —DOR -cont +voi +nas +ant -break
+ṅ: +cons +son -syll -LAB -COR +DOR -cont +voi +nas +ant -break
+ṡ: +cons -son -syll -LAB +COR +DOR +cont -voi -nas -ant +str -break
+ż: +cons -son -syll -LAB +COR +DOR +cont +voi -nas -ant +str -break
+ċ: +cons -son -syll -LAB +COR —DOR +cont -voi -nas -ant +dr +str -break
+ġ: +cons -son -syll -LAB +COR —DOR +cont +voi -nas -ant +dr +str -break
+ṙ: +cons -son -syll -LAB -COR +DOR +cont +voi -nas +hi + back -break
+v: +cons -son -syll +LAB -COR -DOR +cont +voi -nas -break
 b: +cons -son -syll +LAB -COR -DOR -cont +voi -nas -break
 d: +cons -son -syll -LAB +COR —DOR -cont +voi -nas +ant -break
 g: +cons -son -syll -LAB -COR +DOR -cont +voi -nas +hi + back -break
-χ: +cons -son -syll -LAB -COR +DOR +cont -voi -nas -hi + back -break
-s: +cons -son -syll -LAB +COR —DOR +cont -voi -nas +ant -dr +str -break
-ʃ: +cons -son -syll -LAB +COR +DOR +cont -voi -nas -ant +str -break
-t͡s ^: +cons -son -syll -LAB +COR —DOR +cont -voi -nas +ant +dr +str -break
-r: +cons +son -syll -LAB +COR —DOR +cont +voi -nas +cont -lat -break
-l: +cons +son -syll -LAB +COR —DOR +cont +voi -nas +cont +lat -break
-m: +cons +son -syll +LAB -COR —DOR -cont +voi +nas +ant -break
-n: +cons +son -syll -LAB +COR —DOR -cont +voi +nas +ant -break
+z: +cons -son -syll -LAB +COR —DOR +cont +voi -nas +ant -dr +str -break
+w: -cons +son -syll +hi -low +tns +rnd +back -fro +cont +voi -nas -break
+y: -cons +son -syll +hi -low +tns -rnd -back +fro +cont +voi -nas -break
 
-æ: -cons +son +syll -hi +low +tns -rnd -back +fro +cont +voi -nas -break
-ɛ: -cons +son +syll -hi -low -tns -rnd -back +fro +cont +voi -nas -break
-ɪ: -cons +son +syll +hi -low -tns -rnd -back +fro +cont +voi -nas -break
-ʊ: -cons +son +syll +hi -low -tns +rnd +back -fro +cont +voi -nas -break
-ə: -cons +son +syll -hi -low -tns -rnd -back -fro +cont +voi -nas -break
-ɒ: -cons +son +syll -hi +low -tns -rnd +back -fro +cont +voi -nas -break
-o: -cons +son +syll -hi -low -tns +rnd +back -fro +cont +voi -nas -break
 
 !ABBREVIATIONS
 V: +syll -break
@@ -62,16 +65,30 @@ CVC
 CVCC#
 
 !RULES
-RULE1: N > [-nas -son] / C_V
-RULE2: {a,i} > e
-RULE3: e > æ / #_
-RULE4: V > ∅ / eC_NV
-RULE5: e > [-tns] / _N
-RULE6: ∅ > ə / n_n
-RULE7: ɛ > u / {r,n}{d,n}_
-RULE8: u > o / V[+nas]_
-RULE9: a > b / {a, [-tns +hi]} CC [+cons]_
-RULE10: N > [-nas] / _C
-RULE11: e > ʊ / _CσC
-RULE9: ʊ > u / _σCC
-RULE9: V > i / _CCσ
+STRESS_SCHWA: V > [-str]
+STRESS_SCHWA: V > [+str] / #_  
+STRESS_SCHWA: V > [+str] / #C_ 
+STRESS_SCHWA2: V > [+str] / [-str]_
+STRESS_SCHWA2: V > [+str] / [-str]C_
+STRESS_SCHWA3: [+syll -str +low] > e
+SCHWA_DEL: e > ∅ /[+cons]_#
+SCHWA_DEL: e > ∅ / p_p
+SCHWA_DEL: e > ∅ / t_t
+SCHWA_DEL: e > ∅ / k_k
+SCHWA_DEL: e > ∅ / s_s
+SCHWA_DEL: e > ∅ / r_r
+SCHWA_DEL: e > ∅ / n_n
+PALATIZE_F: [+COR -son] > [-ant +DOR] / _i
+PALATIZE_S: [+COR -cont -son] > [-DOR +dr + str] / _i
+FRONT: [-cons +back] > [-back +front] / i_
+DIPHTH: [+syll +hi] > [-syll] / _V
+CONSUME: y > ∅ / C_V
+NAS_ASSM: n > m / [+LAB]V_
+NAS_ASSM: n > ṅ / [+DOR -COR]V_
+GEM_ASSM: n > ṅ / ṅ_
+GEM_ASSM: n > m / m_
+GEM_ASSM: s > ṡ / _ṡ
+GEM_ASSM: s > ṡ / _ċ
+A_ASSM: a > ä / [+DOR -COR]_
+A_ASSM: a > o / [+LAB]_
+VOICE: C > [+voi] / V_V

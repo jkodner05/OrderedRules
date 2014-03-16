@@ -74,6 +74,8 @@ class Executor():
         for i,feats in enumerate(segments):
             match = False
             for seg in segments[i]:
+#                if offsets:
+#                    print len(segments),potential[i], seg
                 if match_features(potential[i], seg) and (not syll_aware or (potential_sylls[i] < 0 and (not offsets or seg['break'] == TRUE)) or (offsets and offsets[i] + sylls[piv_index] == potential_sylls[i])):
                     match = True
             if not match:
@@ -302,7 +304,7 @@ class GlobalGrammar():
         rule_list = [Rule(rule,self.features,self.phones) for rule in rulestrs]
         
         #group rules by name
-        return [(key, set(group)) for key, group in groupby(rule_list, lambda x: x.rule_name)]
+        return [(key, list(group)) for key, group in groupby(rule_list, lambda x: x.rule_name)]
 
 
 
