@@ -178,7 +178,7 @@ class Executor():
         for URstr in URstrs:
             phones = self.syllabify(self.getUR(URstr.strip()))
             lens = len(self.grammar.rules[0][0])
-            print "UR".ljust(lens), " |  /"+self.get_word_representation(phones)+"/"
+            print "UR".ljust(lens), "    /"+self.get_word_representation(phones)+"/"
             for name, rules in self.grammar.rules:
                 updated = False
                 for rule in rules:
@@ -186,10 +186,10 @@ class Executor():
                     updated = updated or updated_this_time
                 new_phones = self.get_word_representation(phones)
                 if updated:
-                    print rule.rule_name, " |  ", new_phones
+                    print rule.rule_name, "    ", new_phones
                 else:
-                    print rule.rule_name, " |  ", "-"
+                    print rule.rule_name, "    ", "-"
                 phones = self.syllabify(phones)
-            print "SR".ljust(lens), " |  ["+self.get_word_representation(phones)+"]"
+            print "SR".ljust(lens), "    ["+self.get_word_representation(phones)+"]"
             print '\n---\n'
 
