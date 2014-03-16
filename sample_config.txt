@@ -50,7 +50,7 @@ g: +cons -son -syll -LAB -COR +DOR -cont +voi -nas +hi + back -break
 z: +cons -son -syll -LAB +COR —DOR +cont +voi -nas +ant -dr +str -break
 w: -cons +son -syll +hi -low +tns +rnd +back -fro +cont +voi -nas -break
 j: -cons +son -syll +hi -low +tns -rnd -back +fro +cont +voi -nas -break
-
+ʔ: -cons -son -syll -COR -LAB -DOR -voi -cont -str -nas -break
 
 !ABBREVIATIONS
 V: +syll -break
@@ -65,6 +65,7 @@ CVC
 CVCC#
 
 !RULES
+GLOTTAL: ∅ > ʔ / #_V
 STRESS_SCHWA: V > [-str]
 STRESS_SCHWA: V > [+str] / #_  
 STRESS_SCHWA: V > [+str] / #C_ 
@@ -77,6 +78,7 @@ SCHWA_DEL: ə > ∅ / k_k
 SCHWA_DEL: ə > ∅ / s_s
 SCHWA_DEL: ə > ∅ / r_r
 SCHWA_DEL: ə > ∅ / n_n
+
 PALATIZE: [+COR -son] > [-ant +DOR] / _i
 PALATIZE: [+COR -cont -son] > [-DOR +dr + str] / _i
 FRONT: [-cons +back] > [-back +front] / i_

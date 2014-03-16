@@ -35,12 +35,17 @@ class Executor():
         else:
             potential = [phone.features for phone in word[piv_index+1:]]
             potential_sylls = sylls[piv_index+1:]
+        if not potential:
+            return False
         for i,feats in enumerate(segments):
             match = False
             for seg in segments[i]:
-#                if offsets:
+ #               if offsets:
 #                    print len(segments),potential[i], seg
-                if match_features(potential[i], seg) and (not syll_aware or (potential_sylls[i] < 0 and (not offsets or seg['break'] == TRUE)) or (offsets and offsets[i] + sylls[piv_index] == potential_sylls[i])):
+#                    print is_prefix, piv_index, len(segments), ".", len(potential), len(potential_sylls), len(offsets), len(sylls)
+                if match_features(potential[i], seg) and \
+                        (not syll_aware or (potential_sylls[i] < 0 and (not offsets or seg['break'] == TRUE)) or \
+                             (offsets and offsets[i] + sylls[piv_index] == potential_sylls[i])):
                     match = True
             if not match:
                 return False
@@ -136,12 +141,15 @@ class Executor():
             if self.match_rule_seg(rule,phone):
                 if self.match_env(rule,word,i):
                     changed = True
+                    if [None] in rule.seg_match:
+                        print i
                     self.change_features(rule,phone)
         #filter out segments meant for deletion
         word =  filter(lambda x: x.to_delete == False, word)
         #Add new phones
-        for i, phone in reversed(list(enumerate(word))):
+        for i, phone in list(enumerate(word)):
             if phone.add_here:
+                print "adding", i
                 phone.add_here = False
                 word.insert(i+1, self.getPhoneUR(rule.seg_change_str.strip()))
         return word, changed
