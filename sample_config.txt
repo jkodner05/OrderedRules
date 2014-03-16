@@ -65,7 +65,6 @@ CVC
 CVCC#
 
 !RULES
-GLOTTAL: ∅ > ʔ / #_V
 STRESS_SCHWA: V > [-str]
 STRESS_SCHWA: V > [+str] / #_  
 STRESS_SCHWA: V > [+str] / #C_ 
@@ -78,12 +77,11 @@ SCHWA_DEL: ə > ∅ / k_k
 SCHWA_DEL: ə > ∅ / s_s
 SCHWA_DEL: ə > ∅ / r_r
 SCHWA_DEL: ə > ∅ / n_n
-
 PALATIZE: [+COR -son] > [-ant +DOR] / _i
 PALATIZE: [+COR -cont -son] > [-DOR +dr + str] / _i
 FRONT: [-cons +back] > [-back +front] / i_
-CONSUME: i > ∅ / [-ant]_V
-CONSUME: i > ∅ / [-ant]_#
+CONSUME: [+hi +syll +front] > ∅ / [-ant]_V
+CONSUME: [+hi +syll +front -str] > ∅ / [-ant]_#
 DIPHTH: [+syll +hi] > [-syll] / _V
 DIPHTH: [+syll +hi] > [-syll] / V_
 LONG: ə > a / a_
@@ -100,3 +98,4 @@ GEM_ASSM: r > v / _v
 A_ASSM: a > ɛ / [+DOR -COR]_
 A_ASSM: a > ɔ / [+LAB]_
 VOICE: C > [+voi] / [-cons]_[-cons]
+GLOTTAL: ∅ > ʔ / #_V

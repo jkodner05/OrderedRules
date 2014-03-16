@@ -141,17 +141,19 @@ class Executor():
             if self.match_rule_seg(rule,phone):
                 if self.match_env(rule,word,i):
                     changed = True
-                    if [None] in rule.seg_match:
-                        print i
                     self.change_features(rule,phone)
         #filter out segments meant for deletion
         word =  filter(lambda x: x.to_delete == False, word)
         #Add new phones
         for i, phone in list(enumerate(word)):
             if phone.add_here:
-                print "adding", i
                 phone.add_here = False
-                word.insert(i+1, self.getPhoneUR(rule.seg_change_str.strip()))
+                offset = 1
+                #for word-initial insert
+                if phone.name == "#":
+                    offset = 2
+                word.insert(i+offset, self.getPhoneUR(rule.seg_change_str.strip()))
+                    
         return word, changed
 
     def get_char_representation(self, seg):
@@ -168,11 +170,13 @@ class Executor():
                 char_rep = self.grammar.phone_char_mappings[phone]
         if char_rep != "#":
             return char_rep
+        else:
+            return " "
         return ''
 
     def get_word_representation(self, word):
         """Output list of phones in readable format"""
-        return "".join([self.get_char_representation(seg) for seg in word])
+        return "".join([self.get_char_representation(seg) for seg in word]).strip()
 
     def apply_to_inputs(self, filename):
         with open(filename, "r") as inputfile:
@@ -184,7 +188,7 @@ class Executor():
                 print "\t", rule.rule_str
         print '\n---\n---\n'
         for URstr in URstrs:
-            phones = self.syllabify(self.getUR(URstr.strip()))
+            phones = self.syllabify(self.getUR(re.sub(" ", "", URstr)))
             lens = len(self.grammar.rules[0][0])
             print "UR".ljust(lens), "    /"+self.get_word_representation(phones)+"/"
             for name, rules in self.grammar.rules:
